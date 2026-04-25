@@ -174,7 +174,7 @@
                                     <div className={`flex items-center gap-2 mb-3 transition-colors duration-500 ${
                                         activeMainTab === 'worship' ? 'text-[#007AFF]' : activeMainTab === 'news' ? 'text-[#FF9500]' : 'text-[#34C759]'
                                     }`}>
-                                        <Icon name="book" size={16} />
+                                        <Icon name="book" size={22} />
                                         <span className="text-xs font-black tracking-widest uppercase">信息主題</span>
                                     </div>
                                     <h2 className="text-2xl sm:text-3xl font-black text-[#1C1C1E] mb-6 tracking-normal leading-normal">  {data.theme.title}</h2>
@@ -336,7 +336,7 @@
 
             <div className="space-y-4">
                 {/* 銀行帳號區塊 - 淺灰底色 */}
-                <div className="flex items-start gap-3 p-4 bg-gray-50/80 rounded-2xl border border-gray-200/50 shadow-sm">
+                <div className="flex items-start gap-3 p-4 bg-[#F2F2F7] rounded-2xl border border-gray-200/50 shadow-sm">
                     <Icon name="bank" size={18} className="mt-1 text-[#007AFF] shrink-0" />
                     <div className="space-y-1">
                         <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest">{data.offering.bank}</p>
@@ -345,7 +345,7 @@
                 </div>
 
                 {/* 戶名區塊 - 淺灰底色 */}
-                <div className="flex items-start gap-3 p-4 bg-gray-50/80 rounded-2xl border border-gray-200/50 shadow-sm">
+                <div className="flex items-start gap-3 p-4 bg-[#F2F2F7] rounded-2xl border border-gray-200/50 shadow-sm">
                     <Icon name="users" size={18} className="mt-0.5 text-[#007AFF] shrink-0" />
                     <div className="space-y-1">
                         <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest">戶名 ACCOUNT NAME</p>
@@ -367,7 +367,7 @@
             <div className="space-y-4">
                 {/* 電話區塊 - 淺灰底色 & 點擊撥號效果 */}
                 <a href={`tel:${data.office.phone}`} 
-                   className="flex items-start gap-3 p-4 bg-gray-50/80 rounded-2xl border border-gray-200/50 shadow-sm active:bg-gray-200 transition-colors block">
+                   className="flex items-start gap-3 p-4 bg-[#F2F2F7] rounded-2xl border border-gray-200/50 shadow-sm active:bg-gray-200 transition-colors block">
                     <Icon name="phone-fill" size={18} className="mt-1 text-[#007AFF] shrink-0" />
                     <div className="space-y-1">
                         <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest">馬可樓辦公室電話 PHONE</p>
@@ -376,7 +376,7 @@
                 </a>
 
                 {/* 地址區塊 - 淺灰底色 */}
-                <div className="flex items-start gap-3 p-4 bg-gray-50/80 rounded-2xl border border-gray-200/50 shadow-sm">
+                <div className="flex items-start gap-3 p-4 bg-[#F2F2F7] rounded-2xl border border-gray-200/50 shadow-sm">
                     <Icon name="pin" size={18} className="mt-0.5 text-[#007AFF] shrink-0" />
                     <div className="space-y-1">
                         <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest">馬可樓辦公室地址 ADDRESS</p>
