@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>風一族職場教會手機週報</title>
-    
+    <title>風一族職場教會手機週報 - 雲端版</title>
+
     <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-database-compat.js"></script>
 
@@ -17,18 +17,25 @@
         body { font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; background-color: #D1D1D6; }
         .backdrop-blur { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
         @keyframes pulse-custom { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }
-        .animate-pulse-custom { animation: pulse-custom 3s ease-in-out infinite; }
-        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-        /* 這裡保留你原本 index.html 所有的 CSS 樣式 */
+        .animate-pulse-custom { animation: pulse-custom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        svg { overflow: visible !important; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* 支援換行的內容樣式 */
+        .sermon-content { white-space: pre-line; }
+        .announcement-detail { white-space: pre-line; }
+        
+        /* 新增：載入動畫 */
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        .loader { animation: spin-slow 1s linear infinite; }
     </style>
 </head>
-<body>
+<body class="text-[#1C1C1E]">
     <div id="root"></div>
-
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+        const { useState, useEffect, Fragment } = React;
 
-        // --- Firebase 配置區 (必須與 admin.html 一致) ---
+        // 2. Firebase 配置 (與後台完全一致)
         const firebaseConfig = {
           apiKey: "AIzaSyCotyhW5mvvDE9YYSz2sICwMtrFlia1Tyg",
           authDomain: "royal-chosen-race.firebaseapp.com",
@@ -39,59 +46,364 @@
           appId: "1:505655650913:web:9ee5735807e21faee15820"
         };
 
-        // 初始化 Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.database();
 
-        // 原本的圖示組件 (保留不變)
-        const Icon = ({ name, size = 24, className = "" }) => {
+        const Icon = ({ name, size = 18, className = "" }) => {
             const icons = {
-                church: <path d="M3 21h18M10 21V10l-2 2m4-2v11m4-11l2 2m-2-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v2" stroke="currentColor" strokeWidth="2" fill="none" />,
-                bell: <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" strokeWidth="2" fill="none" />,
-                users: <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100-8 4 4 0 000 8zm14 14v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" strokeWidth="2" fill="none" />
+                book: <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z" />,
+                music: <path d="M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm12-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />,
+                bell: <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />,
+                users: <Fragment><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></Fragment>,
+                chevronDown: <path d="m6 9 6 6 6-6" />,
+                church: <Fragment><path d="m18 7 4 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M18 22V5l-6-3-6 3v17"/><path d="M12 7v5"/><path d="M10 9h4"/></Fragment>,
+                clock: <Fragment><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2" /></Fragment>,
+                globe: <Fragment><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></Fragment>,
+                plus: <path d="M12 5v14M5 12h14" />,
+                message: <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />,
+                phone: <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />,
+                pin: <Fragment><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></Fragment>,
+                card: <Fragment><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20" /></Fragment>
             };
-            return <svg width={size} height={size} viewBox="0 0 24 24" className={className}>{icons[name] || null}</svg>;
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`inline-block ${className}`}>
+                    {icons[name]}
+                </svg>
+            );
+        };
+
+        const MultilineText = ({ text, className = "" }) => {
+            if (!text) return null;
+            const lines = text.split('\n');
+            return (
+                <span className={className}>
+                    {lines.map((line, i) => (
+                        <Fragment key={i}>
+                            {line}
+                            {i < lines.length - 1 && <br />}
+                        </Fragment>
+                    ))}
+                </span>
+            );
         };
 
         const App = () => {
+            const [currentTime, setCurrentTime] = useState(new Date());
             const [activeMainTab, setActiveMainTab] = useState('worship');
-            const [data, setData] = useState(null); // 初始設為 null
+            const [activeGroupTab, setActiveGroupTab] = useState('weekday');
+            const [verseOpen, setVerseOpen] = useState(false);
+            const [expandedSermon, setExpandedSermon] = useState(null);
+            const [expandedNews, setExpandedNews] = useState(null);
+            
+            // 3. 把原本寫死的資料改成 useState 狀態，預設為 null
+            const [data, setData] = useState(null);
 
-            // 【核心功能】：即時監聽雲端資料
+            useEffect(() => {
+                const timer = setInterval(() => setCurrentTime(new Date()), 10000);
+                return () => clearInterval(timer);
+            }, []);
+
+            // 4. 新增：監聽 Firebase 雲端資料
             useEffect(() => {
                 const bulletinRef = db.ref('bulletin_data');
-                // 使用 .on('value', ...) 代表只要雲端有變動，這裡就會自動執行
                 bulletinRef.on('value', (snapshot) => {
                     const cloudData = snapshot.val();
                     if (cloudData) {
                         setData(cloudData);
                     }
                 });
-                
-                // 離開網頁時停止監聽
+                // 元件卸載時取消監聽
                 return () => bulletinRef.off();
             }, []);
 
-            // 如果資料還沒從雲端抓到，顯示載入畫面
+            const isTimeActive = (start, end) => {
+                const parseMins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+                const nowMins = currentTime.getHours() * 60 + currentTime.getMinutes();
+                return nowMins >= parseMins(start) && nowMins < parseMins(end);
+            };
+
+            const handleExternalLink = (e, url) => {
+                e.preventDefault();
+                window.open(url, '_blank', 'noopener,noreferrer');
+            };
+
+            const cardStyle = "bg-white border border-gray-100/80 rounded-[2rem] shadow-sm overflow-hidden transition-all duration-300";
+
+            // 5. 新增：如果資料還沒抓下來，顯示載入畫面
             if (!data) {
                 return (
-                    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-                        <div className="text-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                            <p className="text-gray-500 font-bold">同步雲端週報中...</p>
+                    <div className="w-full min-h-screen flex items-center justify-center bg-[#E5E5EA]">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="w-12 h-12 border-4 border-gray-300 border-t-[#007AFF] rounded-full loader"></div>
+                            <p className="text-[14px] font-bold text-[#6C6C70] tracking-widest uppercase">準備聚會中...</p>
                         </div>
                     </div>
                 );
             }
 
-            // --- 以下接原本 index.html 的渲染邏輯 (如 renderWorshipContent 等) ---
-            // 注意：原本程式碼中定義的 INITIAL_DATA 現在都不會被用到，改用 data 狀態即可
-
             return (
-                <div className="min-h-screen pb-32">
-                    {/* ... 保留你原本 index.html 的所有 UI 佈局代碼 ... */}
+                <div className="w-full min-h-screen flex justify-center bg-[#E5E5EA]">
+                    <div className={`w-full max-w-md min-h-screen relative shadow-2xl hide-scrollbar pb-36 transition-colors duration-700 ${
+                        activeMainTab === 'worship' ? 'bg-[#F2F2F7]' : activeMainTab === 'news' ? 'bg-[#FFF7ED]' : 'bg-[#F0FDF4]'
+                    }`}>
+
+                        <header className="sticky top-0 z-40 bg-white/75 backdrop-blur-xl border-b border-gray-200/50 px-6 py-4">
+                            <div className="flex justify-between items-center mb-1">
+                                <h1 className="text-xl font-bold tracking-tight text-[#1C1C1E]">風一族職場教會</h1>
+                                <span className={`text-xs font-bold px-3 py-1 rounded-full transition-colors duration-500 ${
+                                    activeMainTab === 'worship' ? 'text-[#007AFF] bg-[#007AFF]/10' :
+                                    activeMainTab === 'news' ? 'text-[#FF9500] bg-[#FF9500]/10' :
+                                    'text-[#34C759] bg-[#34C759]/10'
+                                }`}>{data.bulletinDate.slice(5)} {data.weekNumber}</span>
+                            </div>
+                            <p className="text-xs text-[#6C6C70] font-medium flex items-center gap-2 mt-1.5">
+                                <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-500 ${
+                                    activeMainTab === 'worship' ? 'bg-[#007AFF] shadow-[0_0_8px_rgba(0,122,255,0.4)]' :
+                                    activeMainTab === 'news' ? 'bg-[#FF9500] shadow-[0_0_8px_rgba(255,149,0,0.4)]' :
+                                    'bg-[#34C759] shadow-[0_0_8px_rgba(52,199,89,0.4)]'
+                                }`}></span>
+                                2026年度異象：{data.vision}
+                            </p>
+                        </header>
+
+                        <section className="p-5">
+                            <div className={`${cardStyle} p-7 border-none bg-gradient-to-br from-white to-[#F9F9F9] relative`}>
+                                <div className="relative z-10">
+                                    <div className={`flex items-center gap-2 mb-3 transition-colors duration-500 ${
+                                        activeMainTab === 'worship' ? 'text-[#007AFF]' : activeMainTab === 'news' ? 'text-[#FF9500]' : 'text-[#34C759]'
+                                    }`}>
+                                        <Icon name="book" size={16} />
+                                        <span className="text-xs font-black tracking-widest uppercase">信息主題</span>
+                                    </div>
+                                    <h2 className="text-4xl sm:text-5xl font-black text-[#1C1C1E] mb-6 tracking-tighter leading-tight">{data.theme.title}</h2>
+                                    <div className="flex gap-6 mb-6">
+                                        <div className="space-y-1"><p className="text-xs text-[#8E8E93] font-bold uppercase tracking-wider">講員</p><p className="text-[17px] font-bold text-[#1C1C1E]">{data.theme.speaker}</p></div>
+                                        <div className="w-[1px] h-10 bg-gray-200"></div>
+                                        <div className="space-y-1"><p className="text-xs text-[#8E8E93] font-bold uppercase tracking-wider">司會</p><p className="text-[17px] font-bold text-[#1C1C1E]">{data.theme.moderator}</p></div>
+                                    </div>
+                                    <button onClick={() => setVerseOpen(!verseOpen)} className="w-full py-3.5 bg-[#F2F2F7] rounded-xl flex items-center justify-center gap-3 text-[15px] font-bold text-[#1C1C1E] active:scale-[0.98] transition-all">
+                                        <span>本週經文</span><Icon name="chevronDown" size={16} className={`transition-transform duration-300 ${verseOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    {verseOpen && <div className="mt-4 p-4 bg-white/80 rounded-xl border border-gray-100 text-[15px] leading-relaxed text-[#48484A] italic">{data.theme.scripture}</div>}
+                                </div>
+                                <div className={`absolute top-0 right-0 w-40 h-40 rounded-full -mr-16 -mt-16 blur-3xl transition-colors duration-700 ${
+                                    activeMainTab === 'worship' ? 'bg-[#007AFF]/15' : activeMainTab === 'news' ? 'bg-[#FF9500]/15' : 'bg-[#34C759]/15'
+                                }`}></div>
+                            </div>
+                        </section>
+
+                        <main className="px-5 space-y-6">
+                            {activeMainTab === 'worship' && (
+                                <div className="space-y-6">
+                                    <div className={`${cardStyle} p-7`}>
+                                        <h3 className="text-xs font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-6">聚會流程 SCHEDULE</h3>
+                                        <div className="space-y-6">
+                                            {(data.schedule || []).map((item, idx) => {
+                                                const active = isTimeActive(item.start, item.end);
+                                                return (
+                                                    <div key={idx} className={`flex justify-between items-center transition-all duration-300 ${active ? 'scale-105 origin-left' : ''}`}>
+                                                        <div className="flex items-center gap-4">
+                                                            <div className={`w-3 h-3 rounded-full ${active ? 'bg-[#007AFF] animate-pulse-custom shadow-[0_0_12px_rgba(0,122,255,0.6)]' : 'bg-[#D1D1D6]'}`}></div>
+                                                            <span className={`text-[17px] font-bold ${active ? 'text-[#007AFF]' : 'text-[#1C1C1E]'}`}>{item.task}</span>
+                                                        </div>
+                                                        <span className={`text-[16px] font-mono font-bold ${active ? 'text-[#007AFF]' : 'text-[#8E8E93]'}`}>{item.start}–{item.end}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                    <div className={`${cardStyle} p-7`}>
+                                        <h3 className="text-xs font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-6">敬拜詩歌 SONGS</h3>
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div>
+                                                <p className="text-xs font-bold text-[#007AFF] bg-[#007AFF]/10 px-3 py-1 rounded-full mb-4 inline-block">敬拜歌曲</p>
+                                                <div className="space-y-3">{(data.songs.worship || []).map((s, i) => <p key={i} className="text-[15px] font-bold text-[#1C1C1E] leading-tight">・{s}</p>)}</div>
+                                            </div>
+                                            <div className="pl-6 border-l border-gray-100">
+                                                <p className="text-xs font-bold text-[#34C759] bg-[#34C759]/10 px-3 py-1 rounded-full mb-4 inline-block">回應詩歌</p>
+                                                <div className="space-y-3">{(data.songs.response || []).map((s, i) => <p key={i} className="text-[15px] font-bold text-[#1C1C1E] leading-tight">・{s}</p>)}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className={`${cardStyle} p-6`}>
+                                        <h3 className="text-xs font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-5">信息大綱 OUTLINE</h3>
+                                        <div className="space-y-4">
+                                            {(data.sermonOutline || []).map((item, idx) => (
+                                                <div key={idx} className="bg-[#F2F2F7] rounded-2xl overflow-hidden border border-gray-100">
+                                                    <button onClick={() => setExpandedSermon(expandedSermon === idx ? null : idx)} className="w-full flex justify-between items-center px-5 py-4 text-left active:bg-gray-200 transition-colors">
+                                                        <span className="text-[16px] font-bold text-[#1C1C1E] pr-4">{item.title}</span>
+                                                        <Icon name="chevronDown" size={18} className={`text-[#AEAEB2] shrink-0 transition-transform ${expandedSermon === idx ? 'rotate-180' : ''}`} />
+                                                    </button>
+                                                    {expandedSermon === idx && (
+                                                        <div className="px-5 pb-5 pt-1 space-y-4">
+                                                            {(item.content || []).map((p, pi) => (
+                                                                <p key={pi} className="text-[15px] text-[#48484A] leading-relaxed">
+                                                                    <MultilineText text={p} />
+                                                                </p>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeMainTab === 'news' && (
+                                <div className="space-y-5">
+                                    <div className={`${cardStyle} p-6 space-y-4 border-[#FF9500]/20`}>
+                                        <h3 className="text-xs font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-4">教會公告 ANNOUNCEMENTS</h3>
+                                        {(data.announcements || []).map((item, idx) => (
+                                            <div key={item.id} className="bg-[#FFFDF9] rounded-2xl overflow-hidden border border-[#FF9500]/10">
+                                                <button onClick={() => setExpandedNews(expandedNews === idx ? null : idx)} className="w-full flex justify-between items-center px-5 py-4 text-left active:bg-[#FFF7ED] transition-colors">
+                                                    <div className="flex items-center gap-3 pr-4">
+                                                        <span className="text-[11px] font-bold text-[#FF9500] bg-[#FF9500]/10 px-2.5 py-1 rounded-full uppercase shrink-0">{item.date}</span>
+                                                        <span className="text-[16px] font-bold text-[#1C1C1E]">{item.title}</span>
+                                                    </div>
+                                                    <Icon name="chevronDown" size={18} className={`text-[#AEAEB2] shrink-0 transition-transform ${expandedNews === idx ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                {expandedNews === idx && (
+                                                    <div className="px-5 pb-5 pt-1">
+                                                        <p className="text-[15px] text-[#48484A] leading-relaxed">
+                                                            <MultilineText text={item.detail} />
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeMainTab === 'community' && (
+                                <div className="space-y-5">
+                                    <div className="bg-white/60 p-1 rounded-2xl flex gap-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] border border-[#34C759]/10">
+                                        {['weekday', 'sunday', 'special'].map(tabId => (
+                                            <button key={tabId} onClick={() => setActiveGroupTab(tabId)} className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${activeGroupTab === tabId ? 'bg-white text-[#34C759] shadow-sm' : 'text-[#8E8E93]'}`}>
+                                                {tabId === 'weekday' ? '平日小組' : tabId === 'sunday' ? '主日小組' : '特色/其他'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <div className={`${cardStyle} border-[#34C759]/20`}>
+                                        {(data.groups[activeGroupTab] || []).map((group, idx) => (
+                                            <div key={idx} className="px-6 py-5 flex items-center justify-between border-b border-[#34C759]/5 last:border-0 active:bg-gray-50">
+                                                <div className="flex-1 pr-4">
+                                                    <p className="text-[17px] font-bold text-[#1C1C1E]">{group.name}</p>
+                                                    <p className="text-[13px] text-[#6C6C70] font-medium mt-1 leading-tight">{group.time}<br className="sm:hidden" /><span className="hidden sm:inline"> · </span>{group.leader}</p>
+                                                </div>
+                                                <span className={`text-[12px] font-bold px-3 py-1.5 rounded-xl text-center min-w-[4.5rem] whitespace-nowrap ${group.loc === '馬可樓' ? 'bg-[#34C759]/10 text-[#34C759]' : group.loc === '北科大' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-[#AEAEB2]/10 text-[#8E8E93]'}`}>
+                                                    {group.loc}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="pt-4">
+                                        <h4 className="text-xs font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-4 px-2">海外分會 OVERSEAS</h4>
+                                        <div className="space-y-4">
+                                            {(data.overseas || []).map((ov, idx) => (
+                                                <div key={idx} className={`${cardStyle} border-[#34C759]/20 p-6 flex flex-col gap-4`}>
+                                                    <div className="flex items-center gap-4">
+                                                        <span className="text-3xl leading-none">{ov.flag}</span>
+                                                        <div>
+                                                            <p className="text-[17px] font-bold text-[#1C1C1E]">{ov.name}</p>
+                                                            <p className="text-[13px] text-[#34C759] font-bold mt-0.5">牧師：{ov.leader}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-[13px] text-[#6C6C70] font-medium space-y-2 bg-[#F2F9F5] p-3.5 rounded-xl">
+                                                        <p className="flex items-center gap-2"><Icon name="clock" size={14} className="text-[#AEAEB2]" /> {ov.time} 聚會</p>
+                                                        <p className="flex items-start gap-2"><Icon name="pin" size={14} className="mt-0.5 shrink-0 text-[#AEAEB2]" /> <span className="leading-snug">{ov.loc}</span></p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </main>
+
+                        <footer className="mt-10 px-5 relative z-10">
+                            <div className="flex flex-col gap-5 mb-10">
+                                <div className={`${cardStyle} p-7 text-left border-gray-200/40`}>
+                                    <div className="flex items-center gap-3 mb-5 text-[#8E8E93]">
+                                        <Icon name="card" size={22} />
+                                        <h4 className="text-xs font-black uppercase tracking-[0.2em]">奉獻帳戶資訊</h4>
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div className="space-y-1.5">
+                                            <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest">{data.offering.bank}</p>
+                                            <p className="text-[28px] font-black text-[#1C1C1E] tracking-tighter block leading-none">{data.offering.account}</p>
+                                        </div>
+                                        <div className="flex items-start gap-3 p-4 bg-white/60 rounded-2xl border border-gray-100/50">
+                                            <Icon name="users" size={18} className="mt-0.5 text-[#007AFF] shrink-0" />
+                                            <div className="space-y-1">
+                                                <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest">戶名 ACCOUNT NAME</p>
+                                                <p className="text-[15px] font-bold text-[#1C1C1E] leading-snug">{data.offering.name}</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-[#8E8E93] italic text-center leading-relaxed mt-2">＊透過銀行轉帳奉獻後，請通知辦公室同工＊</p>
+                                    </div>
+                                </div>
+                                <div className={`${cardStyle} p-7 text-left border-gray-200/40`}>
+                                    <div className="flex items-center gap-3 mb-5 text-[#8E8E93]">
+                                        <Icon name="phone" size={22} />
+                                        <h4 className="text-xs font-black uppercase tracking-[0.2em]">聯絡我們 CONTACT</h4>
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div className="space-y-1.5">
+                                            <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest">辦公室電話 PHONE</p>
+                                            <a href={`tel:${data.office.phone}`} className="text-[28px] font-black text-[#1C1C1E] tracking-tighter block active:opacity-40 transition-opacity">{data.office.phone}</a>
+                                        </div>
+                                        <div className="flex items-start gap-3 p-4 bg-white/60 rounded-2xl border border-gray-100/50">
+                                            <Icon name="pin" size={18} className="mt-0.5 text-[#007AFF] shrink-0" />
+                                            <div className="space-y-1">
+                                                <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-widest">辦公室地址 ADDRESS</p>
+                                                <p className="text-[15px] font-bold text-[#1C1C1E] leading-snug">{data.office.address}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-between items-center pt-1">
+                                            <p className="text-[13px] font-black text-[#007AFF] bg-[#007AFF]/10 px-4 py-2 rounded-full">{data.office.name}</p>
+                                            <p className="text-[11px] font-bold text-[#AEAEB2] uppercase tracking-tighter italic font-mono">Church HQ</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="relative z-20 flex flex-wrap justify-center items-center gap-x-6 gap-y-4 mb-10">
+                                <a href="https://royal-chosen-race.com/" target="_blank" rel="noopener noreferrer" onClick={(e) => handleExternalLink(e, 'https://royal-chosen-race.com/')} className="flex items-center gap-1.5 text-[14px] font-bold text-[#007AFF] hover:opacity-70 active:opacity-50 transition-opacity cursor-pointer px-2 py-1">
+                                    <Icon name="globe" size={16} /> 官方網站
+                                </a>
+                                <a href="https://reurl.cc/epkgeW" target="_blank" rel="noopener noreferrer" onClick={(e) => handleExternalLink(e, 'https://reurl.cc/epkgeW')} className="flex items-center gap-1.5 text-[14px] font-bold text-[#AF52DE] hover:opacity-70 active:opacity-50 transition-opacity cursor-pointer px-2 py-1">
+                                    <Icon name="plus" size={16} /> 新人名單
+                                </a>
+                                <a href="https://reurl.cc/0mWG5A" target="_blank" rel="noopener noreferrer" onClick={(e) => handleExternalLink(e, 'https://reurl.cc/0mWG5A')} className="flex items-center gap-1.5 text-[14px] font-bold text-[#FF2D55] hover:opacity-70 active:opacity-50 transition-opacity cursor-pointer px-2 py-1">
+                                    <Icon name="message" size={16} /> 聚會回饋
+                                </a>
+                            </div>
+                            <div className="space-y-4 opacity-40 text-center">
+                                <p className="text-[11px] font-bold text-[#1C1C1E] tracking-[0.3em] uppercase px-4 leading-relaxed">彼此相愛 · 成全聖徒 · 各盡其職 · 完成使命</p>
+                                <p className="text-xs text-[#1C1C1E] font-bold tracking-widest">© 2026 中華基督教風一族職場教會</p>
+                            </div>
+                        </footer>
+
+                        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-[448px] px-5 z-50">
+                            <div className="bg-white/85 backdrop-blur-xl border border-gray-200/60 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.1)] p-2 flex gap-1 justify-center">
+                                {[
+                                    { id: 'worship', label: '主日聚會', icon: 'church', activeBg: 'bg-[#007AFF]' },
+                                    { id: 'news', label: '教會消息', icon: 'bell', activeBg: 'bg-[#FF9500]' },
+                                    { id: 'community', label: '小組資訊', icon: 'users', activeBg: 'bg-[#34C759]' }
+                                ].map(item => (
+                                    <button key={item.id} onClick={() => setActiveMainTab(item.id)} className={`flex-1 flex flex-col items-center justify-center h-[3.5rem] rounded-[2rem] transition-all duration-300 active:scale-95 ${
+                                        activeMainTab === item.id ? `${item.activeBg} text-white shadow-md` : 'text-[#8E8E93] hover:bg-gray-100/50'
+                                    }`}>
+                                        <Icon name={item.icon} size={20} className="mb-0.5" />
+                                        <span className="text-[11px] font-bold tracking-wide">{item.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             );
         };
