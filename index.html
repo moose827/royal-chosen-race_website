@@ -424,17 +424,17 @@
                             {/* 2. PDF 下載按鈕 (併排與正圓形) */}
                             {data?.pdfDownloadUrl && (
                                 <a 
-                                    href={data.pdfDownloadUrl} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className={`shrink-0 w-[4rem] h-[4rem] rounded-full flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.15)] transition-all duration-300 text-white active:scale-95 hover:scale-105 ${
-                                        activeMainTab === 'worship' ? 'bg-[#007AFF] shadow-[#007AFF]/30' :
-                                        activeMainTab === 'news' ? 'bg-[#FF9500] shadow-[#FF9500]/30' :
-                                        'bg-[#34C759] shadow-[#34C759]/30'
-                                    }`}
-                                >
-                                    <Icon name="download" size={24} />
-                                </a>
+    href={data.pdfDownloadUrl} 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className={`shrink-0 w-[4rem] h-[4rem] rounded-full flex items-center justify-center transition-all duration-300 text-white active:scale-95 hover:scale-105 ${
+        activeMainTab === 'worship' ? 'bg-[#007AFF] shadow-[0_10px_25px_rgba(0,122,255,0.4)]' :
+        activeMainTab === 'news' ? 'bg-[#FF9500] shadow-[0_10px_25px_rgba(255,149,0,0.4)]' :
+        'bg-[#34C759] shadow-[0_10px_25px_rgba(52,199,89,0.4)]'
+    }`}
+>
+    <Icon name="download" size={24} />
+</a>
                             )}
                             
                         </div>
