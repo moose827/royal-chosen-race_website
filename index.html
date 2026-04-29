@@ -118,7 +118,6 @@
             const [activeGroupTab, setActiveGroupTab] = useState('weekday');
             const [verseOpen, setVerseOpen] = useState(false);
             
-            // 💡 [更新] 將原本的單一數字狀態改為陣列狀態，以支援多個區塊同時展開
             const [expandedSermons, setExpandedSermons] = useState([]);
             const [expandedNewsList, setExpandedNewsList] = useState([]);
             
@@ -148,7 +147,6 @@
                 return () => clearInterval(timer);
             }, []);
 
-            // 限定週日才啟動聚會動畫
             const isTimeActive = (start, end) => {
                 const isSunday = currentTime.getDay() === 0;
                 if (!isSunday) return false;
@@ -196,7 +194,7 @@
                         <div className="w-full max-w-4xl space-y-6 animate-pulse">
                             <div className="h-20 bg-gray-300/60 rounded-2xl w-full"></div>
                             <div className="h-80 bg-gray-300/60 rounded-[2rem] w-full"></div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                                 <div className="h-64 bg-gray-300/60 rounded-[2rem]"></div>
                                 <div className="h-64 bg-gray-300/60 rounded-[2rem]"></div>
                             </div>
@@ -336,24 +334,23 @@
                                             <h3 className={`${textH3} font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-5 transition-all duration-300`}>信息大綱 OUTLINE</h3>
                                             <div className="space-y-4">
                                                 {(data.sermonOutline || []).map((item, idx) => {
-                                                    // 💡 判斷當前區塊是否開啟
                                                     const isSermonOpen = expandedSermons.includes(idx);
                                                     
                                                     return (
                                                         <div key={idx} className="bg-[#F2F2F7] rounded-2xl overflow-hidden border border-gray-100">
+                                                            {/* 💡 [修復] 使用 items-center 與明確的 flex-1 及 pr-2 來避免重疊 */}
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => {
-                                                                    // 💡 獨立開關邏輯
                                                                     if (isSermonOpen) {
                                                                         setExpandedSermons(expandedSermons.filter(i => i !== idx));
                                                                     } else {
                                                                         setExpandedSermons([...expandedSermons, idx]);
                                                                     }
                                                                 }} 
-                                                                className="w-full flex justify-between items-center px-5 py-4 text-left hover:bg-gray-200 transition-colors group"
+                                                                className="w-full flex justify-between items-center px-5 py-4 text-left hover:bg-gray-200 transition-colors group gap-4"
                                                             >
-                                                                <span className={`${textLg} font-bold text-[#1C1C1E] pr-2 leading-snug transition-all duration-300`}>{item.title}</span>
+                                                                <span className={`flex-1 min-w-0 pr-2 break-words whitespace-normal ${textLg} font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>{item.title}</span>
                                                                 <div className="flex items-center gap-1 shrink-0 text-[#8E8E93] group-hover:text-[#1C1C1E] transition-colors">
                                                                     {!isSermonOpen ? <span className={`${textXs} hidden sm:inline font-normal transition-all duration-300`}>(展開)</span> : null}
                                                                     <Icon name="chevronDown" size={18} className={`transition-transform duration-300 ${isSermonOpen ? 'rotate-180' : ''}`} />
@@ -428,29 +425,34 @@
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                                         <div className={`${cardStyle} p-6 md:p-8 space-y-4 border-[#FF9500]/20 col-span-1 md:col-span-2`}>
                                             <h3 className={`${textH3} font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-4 transition-all duration-300`}>教會公告 ANNOUNCEMENTS</h3>
+                                            
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                                                 {(data.announcements || []).map((item, idx) => {
-                                                    // 💡 判斷當前公告是否開啟
                                                     const isNewsOpen = expandedNewsList.includes(idx);
                                                     
                                                     return (
                                                         <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-[#FF9500]/10 shadow-sm">
+                                                            {/* 💡 [修復] 使用 items-center 與明確的 flex-1 避免溢出 */}
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => {
-                                                                    // 💡 獨立開關邏輯
                                                                     if (isNewsOpen) {
                                                                         setExpandedNewsList(expandedNewsList.filter(i => i !== idx));
                                                                     } else {
                                                                         setExpandedNewsList([...expandedNewsList, idx]);
                                                                     }
                                                                 }} 
-                                                                className="w-full flex justify-between items-center px-5 py-4 text-left hover:bg-[#FFF7ED] transition-colors group"
+                                                                className="w-full flex justify-between items-center px-5 py-4 sm:py-5 text-left hover:bg-[#FFF7ED] transition-colors group gap-4"
                                                             >
-                                                                <div className="flex items-center gap-3 pr-2">
-                                                                    <span className={`${textMicro} font-bold text-[#FF9500] bg-[#FF9500]/10 px-2.5 py-1 rounded-full uppercase shrink-0 transition-all duration-300`}>{item.date}</span>
-                                                                    <span className={`${textLg} font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>{item.title}</span>
+                                                                <div className="flex-1 min-w-0 flex flex-col items-start gap-1.5">
+                                                                    <span className={`shrink-0 ${textMicro} font-bold text-[#FF9500] bg-[#FF9500]/10 px-2.5 py-1 rounded-full uppercase transition-all duration-300 tracking-wider`}>
+                                                                        {item.date}
+                                                                    </span>
+                                                                    <span className={`w-full whitespace-normal break-words pr-2 ${textLg} font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>
+                                                                        {item.title}
+                                                                    </span>
                                                                 </div>
+                                                                
                                                                 <div className="flex items-center gap-1 shrink-0 text-[#8E8E93] group-hover:text-[#FF9500] transition-colors">
                                                                     {!isNewsOpen ? <span className={`${textXs} hidden sm:inline font-normal transition-all duration-300`}>(展開)</span> : null}
                                                                     <Icon name="chevronDown" size={18} className={`transition-transform duration-300 ${isNewsOpen ? 'rotate-180 text-[#FF9500]' : ''}`} />
@@ -484,12 +486,12 @@
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                                             <div className={`${cardStyle} border-[#34C759]/20 col-span-1 md:col-span-2 lg:col-span-1`}>
                                                 {(data.groups[activeGroupTab] || []).map((group, idx) => (
-                                                    <div key={idx} className="px-6 py-5 flex items-center justify-between border-b border-[#34C759]/5 last:border-0 hover:bg-gray-50 transition-colors">
-                                                        <div className="flex-1 pr-4">
-                                                            <p className={`${textLg} font-bold text-[#1C1C1E] transition-all duration-300`}>{group.name}</p>
+                                                    <div key={idx} className="px-6 py-5 flex items-center justify-between border-b border-[#34C759]/5 last:border-0 hover:bg-gray-50 transition-colors gap-4">
+                                                        <div className="flex-1 min-w-0 pr-2">
+                                                            <p className={`whitespace-normal break-words ${textLg} font-bold text-[#1C1C1E] transition-all duration-300`}>{group.name}</p>
                                                             <p className={`${textSm} text-[#6C6C70] font-medium mt-1.5 leading-tight transition-all duration-300`}>{group.time}<br className="sm:hidden" /><span className="hidden sm:inline"> · </span>{group.leader}</p>
                                                         </div>
-                                                        <span className={`${textXs} font-bold px-3 py-1.5 rounded-xl text-center min-w-[4.5rem] whitespace-nowrap transition-all duration-300 ${group.loc === '馬可樓' ? 'bg-[#34C759]/10 text-[#34C759]' : group.loc === '北科大' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-[#AEAEB2]/10 text-[#8E8E93]'}`}>
+                                                        <span className={`shrink-0 ${textXs} font-bold px-3 py-1.5 rounded-xl text-center min-w-[4.5rem] whitespace-nowrap transition-all duration-300 ${group.loc === '馬可樓' ? 'bg-[#34C759]/10 text-[#34C759]' : group.loc === '北科大' ? 'bg-[#007AFF]/10 text-[#007AFF]' : 'bg-[#AEAEB2]/10 text-[#8E8E93]'}`}>
                                                             {group.loc}
                                                         </span>
                                                     </div>
@@ -501,13 +503,13 @@
 
                                             <div className="pt-4 md:pt-0 col-span-1 md:col-span-2 lg:col-span-1">
                                                 <h4 className={`${textH3} font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-4 px-2 transition-all duration-300`}>海外分會 OVERSEAS</h4>
-                                                <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:space-y-0 lg:space-y-4">
+                                                <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:space-y-0 lg:space-y-4 items-start">
                                                     {(data.overseas || []).map((ov, idx) => (
                                                         <div key={idx} className={`${cardStyle} border-[#34C759]/20 p-6 flex flex-col gap-4 m-0`}>
                                                             <div className="flex items-center gap-4">
-                                                                <span className="text-3xl leading-none">{ov.flag}</span>
-                                                                <div>
-                                                                    <p className={`${textLg} font-bold text-[#1C1C1E] transition-all duration-300`}>{ov.name}</p>
+                                                                <span className="text-3xl leading-none shrink-0">{ov.flag}</span>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className={`whitespace-normal break-words ${textLg} font-bold text-[#1C1C1E] transition-all duration-300`}>{ov.name}</p>
                                                                     <p className={`${textSm} text-[#34C759] font-bold mt-0.5 transition-all duration-300`}>牧師：{ov.leader}</p>
                                                                 </div>
                                                             </div>
@@ -532,11 +534,11 @@
                                         </div>
                                         <div className="space-y-4">
                                             <button type="button" onClick={() => copyToClipboard(data.offering.account)} className={`w-full flex items-start justify-between gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/80 transition-colors text-left group ${themeGroupHoverBgClass}`}>
-                                                <div className="flex items-start gap-3">
+                                                <div className="flex items-start gap-3 flex-1 min-w-0">
                                                     <Icon name="card" size={22} className={`mt-1 shrink-0 transition-colors duration-500 ${themeColorClass}`} />
-                                                    <div className="space-y-1">
+                                                    <div className="space-y-1 w-full">
                                                         <p className={`${textXs} font-bold text-[#8E8E93] uppercase tracking-widest transition-all duration-300`}>{data.offering.bank}</p>
-                                                        <p className={`${textHuge} font-black text-[#1C1C1E] tracking-tighter leading-none transition-all duration-300`}>{data.offering.account}</p>
+                                                        <p className={`${textHuge} break-words font-black text-[#1C1C1E] tracking-tighter leading-none transition-all duration-300`}>{data.offering.account}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1 mt-1 shrink-0">
@@ -546,9 +548,9 @@
                                             </button>
                                             <div className="flex items-start gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/70">
                                                 <Icon name="users" size={20} className={`mt-0.5 shrink-0 transition-colors duration-500 ${themeColorClass}`} />
-                                                <div className="space-y-1">
+                                                <div className="space-y-1 flex-1 min-w-0">
                                                     <p className={`${textXs} font-bold text-[#8E8E93] uppercase tracking-widest transition-all duration-300`}>戶名 ACCOUNT NAME</p>
-                                                    <p className={`${textSm} font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>{data.offering.name}</p>
+                                                    <p className={`${textSm} break-words font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>{data.offering.name}</p>
                                                 </div>
                                             </div>
                                             <p className={`${textXs} text-[#8E8E93] font-medium text-center leading-relaxed mt-2 bg-gray-50 py-2.5 rounded-lg transition-all duration-300`}>＊透過銀行轉帳奉獻後，請通知辦公室同工＊</p>
@@ -562,17 +564,17 @@
                                         <div className="space-y-4">
                                             <a href={`tel:${data.office.phone}`} className={`flex items-start gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/80 transition-colors block cursor-pointer group ${themeGroupHoverBgClass}`}>
                                                 <Icon name="phone" size={20} className={`mt-1 shrink-0 transition-colors duration-500 ${themeColorClass}`} />
-                                                <div className="space-y-1">
+                                                <div className="space-y-1 flex-1 min-w-0">
                                                     <p className={`${textXs} font-bold text-[#8E8E93] uppercase tracking-widest transition-all duration-300`}>馬可樓辦公室電話 PHONE</p>
                                                     <p className={`${textHuge} font-black text-[#1C1C1E] tracking-tighter leading-none transition-colors ${themeGroupHoverTextClass}`}>{data.office.phone}</p>
                                                 </div>
                                             </a>
                                             <a href={`http://maps.google.com/?q=${encodeURIComponent(data.office.address)}`} target="_blank" rel="noopener noreferrer" className={`flex items-start justify-between gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/80 transition-colors group ${themeGroupHoverBgClass}`}>
-                                                <div className="flex items-start gap-3">
+                                                <div className="flex items-start gap-3 flex-1 min-w-0">
                                                     <Icon name="pin" size={20} className={`mt-0.5 shrink-0 transition-colors duration-500 ${themeColorClass}`} />
-                                                    <div className="space-y-1 pr-2">
+                                                    <div className="space-y-1 pr-2 w-full">
                                                         <p className={`${textXs} font-bold text-[#8E8E93] uppercase tracking-widest transition-all duration-300`}>馬可樓辦公室地址 ADDRESS</p>
-                                                        <p className={`${textMd} font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>{data.office.address}</p>
+                                                        <p className={`${textMd} break-words font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>{data.office.address}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-center gap-1 shrink-0 mt-1">
