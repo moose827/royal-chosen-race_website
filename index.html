@@ -51,7 +51,7 @@
 <body class="text-[#1C1C1E]">
     <div id="root"></div>
     <script type="text/babel">
-        const { useState, useEffect, Fragment } = React;
+        const { useState, useEffect, Fragment, useRef } = React;
 
         const firebaseConfig = {
           apiKey: "AIzaSyCotyhW5mvvDE9YYSz2sICwMtrFlia1Tyg",
@@ -75,7 +75,7 @@
                 bell: <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />,
                 users: <Fragment><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></Fragment>,
                 chevronDown: <path d="m6 9 6 6 6-6" />,
-                church: <Fragment><path d="m18 7 4 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M18 22V5l-6-3-6 3v17"/><path d="M12 7v5"/><path d="M10 9h4"/></Fragment>,
+                church: <Fragment><path d="m18 7 4 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0a2 2 0 0 0-2 2v4"/><path d="M18 22V5l-6-3-6 3v17"/><path d="M12 7v5"/><path d="M10 9h4"/></Fragment>,
                 clock: <Fragment><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2" /></Fragment>,
                 globe: <Fragment><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></Fragment>,
                 plus: <path d="M12 5v14M5 12h14" />,
@@ -112,6 +112,130 @@
             );
         };
 
+        // ======== 國際高質感版：Canvas 季節特效元件 ========
+        const SeasonalEffects = ({ isMay, isDec }) => {
+            const canvasRef = useRef(null);
+
+            useEffect(() => {
+                if (!isMay && !isDec) return;
+
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                let animationFrameId;
+                
+                const particleCount = isMay ? 35 : 70;
+                const particles = [];
+
+                const resize = () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                };
+                window.addEventListener('resize', resize);
+                resize();
+
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height - canvas.height, 
+                        size: isMay ? Math.random() * 4 + 4 : Math.random() * 2.5 + 0.5,
+                        speedY: isMay ? Math.random() * 0.8 + 0.4 : Math.random() * 1 + 0.2,
+                        speedX: Math.random() * 0.5 - 0.25, 
+                        angle: Math.random() * Math.PI * 2, 
+                        spinSpeed: Math.random() * 0.04 - 0.02, 
+                        sway: Math.random() * 1.5 + 0.5, 
+                        swaySpeed: Math.random() * 0.02 + 0.01, 
+                        opacity: Math.random() * 0.6 + 0.3 
+                    });
+                }
+
+                const render = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    particles.forEach(p => {
+                        p.y += p.speedY; 
+                        p.angle += p.swaySpeed; 
+                        p.x += Math.sin(p.angle) * p.sway + p.speedX; 
+
+                        if (p.y > canvas.height) {
+                            p.y = -20;
+                            p.x = Math.random() * canvas.width;
+                        }
+                        if (p.x > canvas.width + 20) p.x = -20;
+                        if (p.x < -20) p.x = canvas.width + 20;
+
+                        ctx.save();
+                        ctx.translate(p.x, p.y);
+
+                        if (isMay) {
+                            ctx.rotate(p.angle);
+                            ctx.scale(Math.sin(p.angle * 2), 1); 
+                            ctx.fillStyle = `rgba(255, 160, 178, ${p.opacity})`; 
+                            ctx.beginPath();
+                            ctx.moveTo(0, 0);
+                            ctx.bezierCurveTo(p.size, -p.size/2, p.size, p.size*1.5, 0, p.size*2);
+                            ctx.bezierCurveTo(-p.size, p.size*1.5, -p.size, -p.size/2, 0, 0);
+                            ctx.fill();
+                        } else {
+                            // --- 繪製雪花 (Crystalline line pattern) ---
+                            // 🚨 修正：將顏色改回原本的白色，並微調圖樣為更具雪花意象的圖案
+                            // 使用白色和發光陰影，在任何底色上都能看清楚且乾淨
+                            ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity})`;
+                            ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity * 0.4})`; // Semi-transparent center fill
+                            ctx.lineWidth = 1; // 纖細的線條
+                            ctx.lineCap = 'round'; // 柔和的線條末端
+                            ctx.shadowBlur = p.size * 2; // 白光陰影，大小隨粒子縮放
+                            ctx.shadowColor = 'rgba(255, 255, 255, 0.9)'; // 強白光，確保可見
+
+                            // 繪製六角輻射圖案 (Simplified 6-armed pattern)
+                            const numArms = 6;
+                            const mainArmLength = p.size * 1.6;
+                            const hubRadius = p.size * 0.6;
+                            ctx.beginPath();
+                            for (let arm = 0; arm < numArms; arm++) {
+                                // 粒子自身的 jiggling 角度 `p.angle` 用於微調圖案的有機旋轉
+                                const angle = (arm / numArms) * Math.PI * 2 + (p.angle / 15);
+                                
+                                // 從中心樞紐向外繪製臂
+                                const startX = hubRadius * Math.cos(angle);
+                                const startY = hubRadius * Math.sin(angle);
+                                const endX = mainArmLength * Math.cos(angle);
+                                const endY = mainArmLength * Math.sin(angle);
+                                ctx.moveTo(startX, startY);
+                                ctx.lineTo(endX, endY);
+                            }
+                            ctx.stroke(); // 繪製線條
+
+                            // 繪製中心樞紐 (Hub)，增加質量感
+                            ctx.beginPath();
+                            ctx.arc(0, 0, hubRadius, 0, Math.PI * 2);
+                            ctx.fill(); // 填充hub
+                        }
+
+                        ctx.restore();
+                    });
+
+                    animationFrameId = requestAnimationFrame(render);
+                };
+
+                render();
+
+                return () => {
+                    window.removeEventListener('resize', resize);
+                    cancelAnimationFrame(animationFrameId);
+                };
+            }, [isMay, isDec]);
+
+            if (!isMay && !isDec) return null;
+
+            return (
+                <canvas 
+                    ref={canvasRef} 
+                    className="fixed inset-0 pointer-events-none z-[35] w-full h-full"
+                    style={{ display: 'block' }} 
+                />
+            );
+        };
+
         const App = () => {
             const [currentTime, setCurrentTime] = useState(new Date());
             const [activeMainTab, setActiveMainTab] = useState('worship');
@@ -124,6 +248,8 @@
             const [data, setData] = useState(null);
             const [toast, setToast] = useState('');
             const [fontSize, setFontSize] = useState('normal'); 
+            
+            const [seasonalEnabled, setSeasonalEnabled] = useState(true);
 
             useEffect(() => {
                 const cachedData = localStorage.getItem('bulletin_data_cache');
@@ -188,9 +314,32 @@
 
             const cardStyle = "bg-white border border-gray-100/80 rounded-[2rem] shadow-sm overflow-hidden transition-all duration-300";
 
+            // ======== 計算季節與背景邏輯 ========
+            const currentMonth = currentTime.getMonth() + 1;
+            
+            // 是否為特殊的月份 (保留 4 月測試用)
+            const isSpecialMonth = currentMonth === 5 || currentMonth === 12;
+
+            const isMay = seasonalEnabled && (currentMonth === 5); 
+            const isDec = seasonalEnabled && currentMonth === 12;
+
+            let outerBgClass = '';
+            let mainContentBgClass = '';
+
+            if (isMay) {
+                outerBgClass = 'bg-[#FFF0F5]';
+                mainContentBgClass = 'bg-[#FFF0F5]';
+            } else if (isDec) {
+                outerBgClass = 'bg-[#E2E8F0]';
+                mainContentBgClass = 'bg-[#F1F5F9]';
+            } else {
+                outerBgClass = 'bg-[#F2F2EE]';
+                mainContentBgClass = activeMainTab === 'worship' ? 'bg-[#F2F6FA]' : activeMainTab === 'news' ? 'bg-[#FCF6ED]' : 'bg-[#F2FAF4]';
+            }
+
             if (!data) {
                 return (
-                    <div className="w-full min-h-screen flex items-start justify-center bg-[#F2F2EE] pt-6 px-4 pb-20">
+                    <div className={`w-full min-h-screen flex items-start justify-center pt-6 px-4 pb-20 transition-colors duration-700 ${outerBgClass}`}>
                         <div className="w-full max-w-4xl space-y-6 animate-pulse">
                             <div className="h-20 bg-gray-300/60 rounded-2xl w-full"></div>
                             <div className="h-80 bg-gray-300/60 rounded-[2rem] w-full"></div>
@@ -203,33 +352,74 @@
                 );
             }
 
-            const themeColorClass = activeMainTab === 'worship' ? 'text-[#007AFF]' : activeMainTab === 'news' ? 'text-[#FF9500]' : 'text-[#34C759]';
-            const themeBgClass = activeMainTab === 'worship' ? 'bg-[#007AFF]' : activeMainTab === 'news' ? 'bg-[#FF9500]' : 'bg-[#34C759]';
-            const themeLightBgClass = activeMainTab === 'worship' ? 'bg-[#007AFF]/10' : activeMainTab === 'news' ? 'bg-[#FF9500]/10' : 'bg-[#34C759]/10';
-            
-            const themeScriptureBorderClass = activeMainTab === 'worship' ? 'border-[#007AFF]/40' : activeMainTab === 'news' ? 'border-[#FF9500]/40' : 'border-[#34C759]/40';
-            const themeScriptureBgClass = activeMainTab === 'worship' ? 'bg-[#007AFF]/5' : activeMainTab === 'news' ? 'bg-[#FF9500]/5' : 'bg-[#34C759]/5';
+            // ======== 主題色控制 ========
+            let themeColorClass = '';
+            let themeBgClass = '';
+            let themeLightBgClass = '';
+            let themeScriptureBorderClass = '';
+            let themeScriptureBgClass = '';
+            let themeGroupHoverTextClass = '';
+            let themeGroupHoverBgClass = '';
 
-            const themeGroupHoverTextClass = activeMainTab === 'worship' ? 'group-hover:text-[#007AFF]' : activeMainTab === 'news' ? 'group-hover:text-[#FF9500]' : 'group-hover:text-[#34C759]';
-            const themeGroupHoverBgClass = activeMainTab === 'worship' ? 'hover:bg-[#007AFF]/5 active:bg-[#007AFF]/10' : activeMainTab === 'news' ? 'hover:bg-[#FF9500]/5 active:bg-[#FF9500]/10' : 'hover:bg-[#34C759]/5 active:bg-[#34C759]/10';
+            if (isMay) {
+                const pinkColor = 'text-[#FF4D85]';
+                const pinkBg = 'bg-[#FF4D85]';
+                themeColorClass = pinkColor;
+                themeBgClass = pinkBg;
+                themeLightBgClass = 'bg-[#FF4D85]/10';
+                themeScriptureBorderClass = 'border-[#FF4D85]/40';
+                themeScriptureBgClass = 'bg-[#FF4D85]/5';
+                themeGroupHoverTextClass = 'group-hover:text-[#FF4D85]';
+                themeGroupHoverBgClass = 'hover:bg-[#FF4D85]/5 active:bg-[#FF4D85]/10';
+            } else if (isDec) {
+                const iceColor = 'text-[#0082CC]';
+                const iceBg = 'bg-[#0082CC]';
+                themeColorClass = iceColor;
+                themeBgClass = iceBg;
+                themeLightBgClass = 'bg-[#0082CC]/10';
+                themeScriptureBorderClass = 'border-[#0082CC]/40';
+                themeScriptureBgClass = 'bg-[#0082CC]/5';
+                themeGroupHoverTextClass = 'group-hover:text-[#0082CC]';
+                themeGroupHoverBgClass = 'hover:bg-[#0082CC]/5 active:bg-[#0082CC]/10';
+            } else {
+                themeColorClass = activeMainTab === 'worship' ? 'text-[#007AFF]' : activeMainTab === 'news' ? 'text-[#FF9500]' : 'text-[#34C759]';
+                themeBgClass = activeMainTab === 'worship' ? 'bg-[#007AFF]' : activeMainTab === 'news' ? 'bg-[#FF9500]' : 'bg-[#34C759]';
+                themeLightBgClass = activeMainTab === 'worship' ? 'bg-[#007AFF]/10' : activeMainTab === 'news' ? 'bg-[#FF9500]/10' : 'bg-[#34C759]/10';
+                themeScriptureBorderClass = activeMainTab === 'worship' ? 'border-[#007AFF]/40' : activeMainTab === 'news' ? 'border-[#FF9500]/40' : 'border-[#34C759]/40';
+                themeScriptureBgClass = activeMainTab === 'worship' ? 'bg-[#007AFF]/5' : activeMainTab === 'news' ? 'bg-[#FF9500]/5' : 'bg-[#34C759]/5';
+                themeGroupHoverTextClass = activeMainTab === 'worship' ? 'group-hover:text-[#007AFF]' : activeMainTab === 'news' ? 'group-hover:text-[#FF9500]' : 'group-hover:text-[#34C759]';
+                themeGroupHoverBgClass = activeMainTab === 'worship' ? 'hover:bg-[#007AFF]/5 active:bg-[#007AFF]/10' : activeMainTab === 'news' ? 'hover:bg-[#FF9500]/5 active:bg-[#FF9500]/10' : 'hover:bg-[#34C759]/5 active:bg-[#34C759]/10';
+            }
+
+            let themeGradient = '';
+            if (isMay) {
+                themeGradient = 'radial-gradient(circle, rgba(255, 77, 133, 0.12) 0%, rgba(255, 77, 133, 0) 70%)';
+            } else if (isDec) {
+                themeGradient = 'radial-gradient(circle, rgba(0, 130, 204, 0.12) 0%, rgba(0, 130, 204, 0) 70%)';
+            } else {
+                themeGradient = activeMainTab === 'worship' 
+                    ? 'radial-gradient(circle, rgba(0, 122, 255, 0.12) 0%, rgba(0, 122, 255, 0) 70%)' 
+                    : activeMainTab === 'news' 
+                    ? 'radial-gradient(circle, rgba(255, 149, 0, 0.12) 0%, rgba(255, 149, 0, 0) 70%)' 
+                    : 'radial-gradient(circle, rgba(52, 199, 89, 0.12) 0%, rgba(52, 199, 89, 0) 70%)';
+            }
 
             const textH1 = fontSize === 'large' ? 'text-[24px] md:text-[28px]' : 'text-[20px] md:text-[24px]';
             const textH2 = fontSize === 'large' ? 'text-[32px] md:text-[40px]' : 'text-[26px] md:text-[34px]';
             const textH3 = fontSize === 'large' ? 'text-[14px]' : 'text-[12px]'; 
-            
             const textLg = fontSize === 'large' ? 'text-[20px]' : 'text-[17px]'; 
             const textMd = fontSize === 'large' ? 'text-[19px]' : 'text-[16px]'; 
             const textSm = fontSize === 'large' ? 'text-[16px]' : 'text-[14px]'; 
             const textXs = fontSize === 'large' ? 'text-[14px]' : 'text-[12px]'; 
             const textMicro = fontSize === 'large' ? 'text-[13px]' : 'text-[11px]'; 
-            
             const textHuge = fontSize === 'large' ? 'text-[28px] md:text-[32px]' : 'text-[24px] md:text-[28px]'; 
 
             return (
-                <div className="w-full min-h-screen flex justify-center bg-[#F2F2EE]">
-                    <div className={`w-full max-w-4xl min-h-screen relative shadow-2xl hide-scrollbar pb-36 md:pb-10 transition-colors duration-700 ${
-                        activeMainTab === 'worship' ? 'bg-[#F2F6FA]' : activeMainTab === 'news' ? 'bg-[#FCF6ED]' : 'bg-[#F2FAF4]'
-                    }`}>
+                <div className={`w-full min-h-screen flex justify-center transition-colors duration-700 ${outerBgClass}`}>
+                    
+                    <SeasonalEffects isMay={isMay} isDec={isDec} />
+
+                    <div className={`w-full max-w-4xl min-h-screen relative z-30 shadow-2xl hide-scrollbar pb-36 md:pb-10 transition-colors duration-700 ${mainContentBgClass}`}>
 
                         <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 px-5 py-3 md:px-6 md:py-4">
                             <div className="flex flex-nowrap justify-between items-center mb-1.5 gap-2">
@@ -276,14 +466,20 @@
                                 { id: 'worship', label: '主日聚會', icon: 'church', activeBg: 'bg-[#007AFF]' },
                                 { id: 'news', label: '教會消息', icon: 'bell', activeBg: 'bg-[#FF9500]' },
                                 { id: 'community', label: '小組資訊', icon: 'users', activeBg: 'bg-[#34C759]' }
-                            ].map(item => (
-                                <button key={item.id} type="button" onClick={() => setActiveMainTab(item.id)} className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl transition-all duration-300 ${
-                                    activeMainTab === item.id ? `${item.activeBg} text-white shadow-md` : 'bg-white text-[#8E8E93] border border-gray-200 hover:bg-gray-50'
-                                }`}>
-                                    <Icon name={item.icon} size={18} />
-                                    <span className="text-[14px] font-bold tracking-wide">{item.label}</span>
-                                </button>
-                            ))}
+                            ].map(item => {
+                                let activeBg = item.activeBg;
+                                if (isMay) activeBg = 'bg-[#FF4D85]';
+                                if (isDec) activeBg = 'bg-[#0082CC]';
+
+                                return (
+                                    <button key={item.id} type="button" onClick={() => setActiveMainTab(item.id)} className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl transition-all duration-300 ${
+                                        activeMainTab === item.id ? `${activeBg} text-white shadow-md` : 'bg-white text-[#8E8E93] border border-gray-200 hover:bg-gray-50'
+                                    }`}>
+                                        <Icon name={item.icon} size={18} />
+                                        <span className="text-[14px] font-bold tracking-wide">{item.label}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
 
                         <div className="p-5 space-y-6">
@@ -315,13 +511,7 @@
                                     </div>
                                     <div 
                                         className="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 -mr-24 -mt-24 pointer-events-none transition-colors duration-700"
-                                        style={{
-                                            background: activeMainTab === 'worship' 
-                                                ? 'radial-gradient(circle, rgba(0, 122, 255, 0.12) 0%, rgba(0, 122, 255, 0) 70%)' 
-                                                : activeMainTab === 'news' 
-                                                ? 'radial-gradient(circle, rgba(255, 149, 0, 0.12) 0%, rgba(255, 149, 0, 0) 70%)' 
-                                                : 'radial-gradient(circle, rgba(52, 199, 89, 0.12) 0%, rgba(52, 199, 89, 0) 70%)'
-                                        }}
+                                        style={{ background: themeGradient }}
                                     ></div>
                                 </div>
                             </section>
@@ -338,7 +528,6 @@
                                                     
                                                     return (
                                                         <div key={idx} className="bg-[#F2F2F7] rounded-2xl overflow-hidden border border-gray-100">
-                                                            {/* 💡 [修復] 使用 items-center 與明確的 flex-1 及 pr-2 來避免重疊 */}
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => {
@@ -380,7 +569,7 @@
                                                         return (
                                                             <div key={idx} className="flex w-full items-start transition-all duration-300">
                                                                 <div className="flex items-start gap-4">
-                                                                    <div className={`mt-1.5 w-4 h-4 flex items-center justify-center shrink-0 ${active ? 'text-[#007AFF]' : 'hidden'}`}>
+                                                                    <div className={`mt-1.5 w-4 h-4 flex items-center justify-center shrink-0 ${active ? themeColorClass : 'hidden'}`}>
                                                                         <div className="flex gap-[2px] items-end h-full">
                                                                             <div className="wave-bar"></div>
                                                                             <div className="wave-bar"></div>
@@ -390,11 +579,11 @@
                                                                     {!active && <div className="mt-2 w-3 h-3 rounded-full shrink-0 bg-[#D1D1D6] ml-0.5"></div>}
                                                                     
                                                                     <div className="flex flex-col">
-                                                                        <span className={`font-bold transition-all duration-300 ${active ? 'text-[#007AFF]' : 'text-[#1C1C1E]'} ${textLg}`}>{item.task}</span>
-                                                                        {active && <span className={`${textXs} font-medium text-[#007AFF] mt-1 opacity-80`}>聚會進行中，請保持心靈誠實</span>}
+                                                                        <span className={`font-bold transition-all duration-300 ${active ? themeColorClass : 'text-[#1C1C1E]'} ${textLg}`}>{item.task}</span>
+                                                                        {active && <span className={`${textXs} font-medium ${themeColorClass} mt-1 opacity-80`}>聚會進行中，請保持心靈誠實</span>}
                                                                     </div>
                                                                 </div>
-                                                                <span className={`font-bold tabular-nums text-right w-[100px] sm:w-[110px] shrink-0 ml-auto tracking-tight transition-all duration-300 ${active ? 'text-[#007AFF]' : 'text-[#8E8E93]'} ${textMd} mt-0.5`}>
+                                                                <span className={`font-bold tabular-nums text-right w-[100px] sm:w-[110px] shrink-0 ml-auto tracking-tight transition-all duration-300 ${active ? themeColorClass : 'text-[#8E8E93]'} ${textMd} mt-0.5`}>
                                                                     {item.start}-{item.end}
                                                                 </span>
                                                             </div>
@@ -407,11 +596,11 @@
                                                 <h3 className={`${textH3} font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-6 transition-all duration-300`}>敬拜詩歌 SONGS</h3>
                                                 <div className="grid grid-cols-2 gap-6">
                                                     <div>
-                                                        <p className={`${textXs} font-bold text-[#007AFF] bg-[#007AFF]/10 px-3 py-1 rounded-full mb-4 inline-block transition-all duration-300`}>敬拜歌曲</p>
+                                                        <p className={`${textXs} font-bold px-3 py-1 rounded-full mb-4 inline-block transition-all duration-300 ${themeColorClass} ${themeLightBgClass}`}>敬拜歌曲</p>
                                                         <div className="space-y-3">{(data.songs.worship || []).map((s, i) => <p key={i} className={`${textMd} font-bold text-[#1C1C1E] leading-tight transition-all duration-300`}>・{s}</p>)}</div>
                                                     </div>
                                                     <div className="pl-6 border-l border-gray-100">
-                                                        <p className={`${textXs} font-bold text-[#34C759] bg-[#34C759]/10 px-3 py-1 rounded-full mb-4 inline-block transition-all duration-300`}>回應詩歌</p>
+                                                        <p className={`${textXs} font-bold px-3 py-1 rounded-full mb-4 inline-block transition-all duration-300 ${isMay || isDec ? themeColorClass + ' ' + themeLightBgClass : 'text-[#34C759] bg-[#34C759]/10'}`}>回應詩歌</p>
                                                         <div className="space-y-3">{(data.songs.response || []).map((s, i) => <p key={i} className={`${textMd} font-bold text-[#1C1C1E] leading-tight transition-all duration-300`}>・{s}</p>)}</div>
                                                     </div>
                                                 </div>
@@ -423,7 +612,7 @@
 
                                 {activeMainTab === 'news' && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                                        <div className={`${cardStyle} p-6 md:p-8 space-y-4 border-[#FF9500]/20 col-span-1 md:col-span-2`}>
+                                        <div className={`${cardStyle} p-6 md:p-8 space-y-4 ${isMay || isDec ? themeScriptureBorderClass : 'border-[#FF9500]/20'} col-span-1 md:col-span-2`}>
                                             <h3 className={`${textH3} font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-4 transition-all duration-300`}>教會公告 ANNOUNCEMENTS</h3>
                                             
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
@@ -431,8 +620,7 @@
                                                     const isNewsOpen = expandedNewsList.includes(idx);
                                                     
                                                     return (
-                                                        <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-[#FF9500]/10 shadow-sm">
-                                                            {/* 💡 [修復] 使用 items-center 與明確的 flex-1 避免溢出 */}
+                                                        <div key={item.id} className={`bg-white rounded-2xl overflow-hidden border shadow-sm ${isMay || isDec ? themeScriptureBorderClass : 'border-[#FF9500]/10'}`}>
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => {
@@ -442,10 +630,10 @@
                                                                         setExpandedNewsList([...expandedNewsList, idx]);
                                                                     }
                                                                 }} 
-                                                                className="w-full flex justify-between items-center px-5 py-4 sm:py-5 text-left hover:bg-[#FFF7ED] transition-colors group gap-4"
+                                                                className={`w-full flex justify-between items-center px-5 py-4 sm:py-5 text-left transition-colors group gap-4 ${isMay || isDec ? themeGroupHoverBgClass : 'hover:bg-[#FFF7ED]'}`}
                                                             >
                                                                 <div className="flex-1 min-w-0 flex flex-col items-start gap-1.5">
-                                                                    <span className={`shrink-0 ${textMicro} font-bold text-[#FF9500] bg-[#FF9500]/10 px-2.5 py-1 rounded-full uppercase transition-all duration-300 tracking-wider`}>
+                                                                    <span className={`shrink-0 ${textMicro} font-bold px-2.5 py-1 rounded-full uppercase transition-all duration-300 tracking-wider ${isMay || isDec ? themeColorClass + ' ' + themeLightBgClass : 'text-[#FF9500] bg-[#FF9500]/10'}`}>
                                                                         {item.date}
                                                                     </span>
                                                                     <span className={`w-full whitespace-normal break-words pr-2 ${textLg} font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>
@@ -453,13 +641,13 @@
                                                                     </span>
                                                                 </div>
                                                                 
-                                                                <div className="flex items-center gap-1 shrink-0 text-[#8E8E93] group-hover:text-[#FF9500] transition-colors">
+                                                                <div className={`flex items-center gap-1 shrink-0 transition-colors ${isNewsOpen ? themeColorClass : 'text-[#8E8E93]'} ${themeGroupHoverTextClass}`}>
                                                                     {!isNewsOpen ? <span className={`${textXs} hidden sm:inline font-normal transition-all duration-300`}>(展開)</span> : null}
-                                                                    <Icon name="chevronDown" size={18} className={`transition-transform duration-300 ${isNewsOpen ? 'rotate-180 text-[#FF9500]' : ''}`} />
+                                                                    <Icon name="chevronDown" size={18} className={`transition-transform duration-300 ${isNewsOpen ? 'rotate-180' : ''}`} />
                                                                 </div>
                                                             </button>
                                                             {isNewsOpen && (
-                                                                <div className="px-5 pb-5 pt-1 border-t border-[#FF9500]/10 mt-1 mx-2">
+                                                                <div className={`px-5 pb-5 pt-1 border-t mt-1 mx-2 ${isMay || isDec ? themeScriptureBorderClass : 'border-[#FF9500]/10'}`}>
                                                                     <div className={`${textMd} font-normal text-[#48484A] leading-relaxed mt-4 transition-all duration-300`}>
                                                                         <MultilineText text={item.detail} />
                                                                     </div>
@@ -477,16 +665,16 @@
                                     <div className="space-y-5">
                                         <div className="bg-white/70 p-1.5 rounded-2xl flex gap-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] border border-gray-200">
                                             {['weekday', 'sunday', 'special'].map(tabId => (
-                                                <button key={tabId} type="button" onClick={() => setActiveGroupTab(tabId)} className={`flex-1 py-3 md:py-4 ${textSm} font-bold rounded-xl transition-all duration-300 ${activeGroupTab === tabId ? 'bg-white text-[#34C759] shadow-sm' : 'text-[#8E8E93] hover:bg-white/50'}`}>
+                                                <button key={tabId} type="button" onClick={() => setActiveGroupTab(tabId)} className={`flex-1 py-3 md:py-4 ${textSm} font-bold rounded-xl transition-all duration-300 ${activeGroupTab === tabId ? `bg-white shadow-sm ${isMay || isDec ? themeColorClass : 'text-[#34C759]'}` : 'text-[#8E8E93] hover:bg-white/50'}`}>
                                                     {tabId === 'weekday' ? '平日小組' : tabId === 'sunday' ? '主日小組' : '特色/其他'}
                                                 </button>
                                             ))}
                                         </div>
                                         
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                                            <div className={`${cardStyle} border-[#34C759]/20 col-span-1 md:col-span-2 lg:col-span-1`}>
+                                            <div className={`${cardStyle} ${isMay || isDec ? themeScriptureBorderClass : 'border-[#34C759]/20'} col-span-1 md:col-span-2 lg:col-span-1`}>
                                                 {(data.groups[activeGroupTab] || []).map((group, idx) => (
-                                                    <div key={idx} className="px-6 py-5 flex items-center justify-between border-b border-[#34C759]/5 last:border-0 hover:bg-gray-50 transition-colors gap-4">
+                                                    <div key={idx} className={`px-6 py-5 flex items-center justify-between border-b last:border-0 hover:bg-gray-50 transition-colors gap-4 ${isMay || isDec ? themeScriptureBorderClass : 'border-[#34C759]/5'}`}>
                                                         <div className="flex-1 min-w-0 pr-2">
                                                             <p className={`whitespace-normal break-words ${textLg} font-bold text-[#1C1C1E] transition-all duration-300`}>{group.name}</p>
                                                             <p className={`${textSm} text-[#6C6C70] font-medium mt-1.5 leading-tight transition-all duration-300`}>{group.time}<br className="sm:hidden" /><span className="hidden sm:inline"> · </span>{group.leader}</p>
@@ -505,15 +693,15 @@
                                                 <h4 className={`${textH3} font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-4 px-2 transition-all duration-300`}>海外分會 OVERSEAS</h4>
                                                 <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:space-y-0 lg:space-y-4 items-start">
                                                     {(data.overseas || []).map((ov, idx) => (
-                                                        <div key={idx} className={`${cardStyle} border-[#34C759]/20 p-6 flex flex-col gap-4 m-0`}>
+                                                        <div key={idx} className={`${cardStyle} ${isMay || isDec ? themeScriptureBorderClass : 'border-[#34C759]/20'} p-6 flex flex-col gap-4 m-0`}>
                                                             <div className="flex items-center gap-4">
                                                                 <span className="text-3xl leading-none shrink-0">{ov.flag}</span>
                                                                 <div className="flex-1 min-w-0">
                                                                     <p className={`whitespace-normal break-words ${textLg} font-bold text-[#1C1C1E] transition-all duration-300`}>{ov.name}</p>
-                                                                    <p className={`${textSm} text-[#34C759] font-bold mt-0.5 transition-all duration-300`}>牧師：{ov.leader}</p>
+                                                                    <p className={`${textSm} font-bold mt-0.5 transition-all duration-300 ${isMay || isDec ? themeColorClass : 'text-[#34C759]'}`}>牧師：{ov.leader}</p>
                                                                 </div>
                                                             </div>
-                                                            <div className={`${textSm} text-[#6C6C70] font-medium space-y-2 bg-[#F2F9F5] p-4 rounded-xl transition-all duration-300`}>
+                                                            <div className={`${textSm} text-[#6C6C70] font-medium space-y-2 p-4 rounded-xl transition-all duration-300 ${isMay || isDec ? themeScriptureBgClass : 'bg-[#F2F9F5]'}`}>
                                                                 <p className="flex items-center gap-2"><Icon name="clock" size={16} className="text-[#AEAEB2]" /> <span>{ov.time} 聚會</span></p>
                                                                 <p className="flex items-start gap-2"><Icon name="pin" size={16} className="mt-0.5 shrink-0 text-[#AEAEB2]" /> <span className="leading-snug">{ov.loc}</span></p>
                                                             </div>
@@ -597,6 +785,25 @@
                                         <Icon name="message" size={18} /> 聚會回饋
                                     </a>
                                 </div>
+
+                                {/* ======== 季節特效開關按鈕 (只在特殊月份顯示) ======== */}
+                                {isSpecialMonth && (
+                                    <div className="relative z-30 flex justify-center mt-6 mb-8">
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setSeasonalEnabled(!seasonalEnabled)}
+                                            className={`flex items-center gap-2.5 ${textSm} font-bold px-6 py-3 rounded-full border transition-all duration-300 ${
+                                                seasonalEnabled 
+                                                    ? `bg-white border-gray-200 text-[#48484A] shadow-md hover:bg-gray-50` 
+                                                    : 'bg-gray-100/80 border-gray-200 text-[#8E8E93] hover:bg-gray-200 shadow-sm'
+                                            }`}
+                                        >
+                                            <span className="text-[18px] leading-none">{currentMonth === 12 ? '❄️' : '🌸'}</span>
+                                            {seasonalEnabled ? '關閉節慶特效與色彩' : '開啟節慶特效與色彩'}
+                                        </button>
+                                    </div>
+                                )}
+
                                 <div className="space-y-4 opacity-40 text-center">
                                     <p className={`${textXs} font-bold text-[#1C1C1E] tracking-[0.1em] uppercase px-4 leading-relaxed transition-all duration-300`}>彼此相愛 · 成全聖徒 · 各盡其職 · 完成使命</p>
                                     <p className={`${textMicro} text-[#1C1C1E] font-bold tracking-widest transition-all duration-300`}>© 2026 中華基督教風一族職場教會</p>
@@ -611,14 +818,20 @@
                                     { id: 'worship', label: '主日聚會', icon: 'church', activeBg: 'bg-[#007AFF]' },
                                     { id: 'news', label: '教會消息', icon: 'bell', activeBg: 'bg-[#FF9500]' },
                                     { id: 'community', label: '小組資訊', icon: 'users', activeBg: 'bg-[#34C759]' }
-                                ].map(item => (
-                                    <button key={item.id} type="button" onClick={() => setActiveMainTab(item.id)} className={`flex-1 flex flex-col items-center justify-center h-[3.5rem] rounded-[1.75rem] transition-all duration-300 active:scale-95 ${
-                                        activeMainTab === item.id ? `${item.activeBg} text-white shadow-md` : 'text-[#8E8E93] hover:bg-gray-100/50'
-                                    }`}>
-                                        <Icon name={item.icon} size={20} className="mb-0.5" />
-                                        <span className="text-[11px] font-bold tracking-wide">{item.label}</span>
-                                    </button>
-                                ))}
+                                ].map(item => {
+                                    let activeBg = item.activeBg;
+                                    if (isMay) activeBg = 'bg-[#FF4D85]';
+                                    if (isDec) activeBg = 'bg-[#0082CC]';
+
+                                    return (
+                                        <button key={item.id} type="button" onClick={() => setActiveMainTab(item.id)} className={`flex-1 flex flex-col items-center justify-center h-[3.5rem] rounded-[1.75rem] transition-all duration-300 active:scale-95 ${
+                                            activeMainTab === item.id ? `${activeBg} text-white shadow-md` : 'text-[#8E8E93] hover:bg-gray-100/50'
+                                        }`}>
+                                            <Icon name={item.icon} size={20} className="mb-0.5" />
+                                            <span className="text-[11px] font-bold tracking-wide">{item.label}</span>
+                                        </button>
+                                    );
+                                })}
                             </div>
                             
                             {data?.pdfDownloadUrl && (
@@ -627,6 +840,8 @@
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                     className={`shrink-0 w-[4.25rem] h-[4.25rem] rounded-full flex items-center justify-center transition-all duration-300 text-white active:scale-95 hover:scale-105 shadow-lg ${
+                                        isMay ? 'bg-[#FF4D85] shadow-[#FF4D85]/40' :
+                                        isDec ? 'bg-[#0082CC] shadow-[#0082CC]/40' :
                                         activeMainTab === 'worship' ? 'bg-[#007AFF] shadow-[#007AFF]/40' :
                                         activeMainTab === 'news' ? 'bg-[#FF9500] shadow-[#FF9500]/40' :
                                         'bg-[#34C759] shadow-[#34C759]/40'
