@@ -176,39 +176,13 @@
                             ctx.bezierCurveTo(-p.size, p.size*1.5, -p.size, -p.size/2, 0, 0);
                             ctx.fill();
                         } else {
-                            // --- 繪製雪花 (Crystalline line pattern) ---
-                            // 🚨 修正：將顏色改回原本的白色，並微調圖樣為更具雪花意象的圖案
-                            // 使用白色和發光陰影，在任何底色上都能看清楚且乾淨
-                            ctx.strokeStyle = `rgba(255, 255, 255, ${p.opacity})`;
-                            ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity * 0.4})`; // Semi-transparent center fill
-                            ctx.lineWidth = 1; // 纖細的線條
-                            ctx.lineCap = 'round'; // 柔和的線條末端
-                            ctx.shadowBlur = p.size * 2; // 白光陰影，大小隨粒子縮放
-                            ctx.shadowColor = 'rgba(255, 255, 255, 0.9)'; // 強白光，確保可見
-
-                            // 繪製六角輻射圖案 (Simplified 6-armed pattern)
-                            const numArms = 6;
-                            const mainArmLength = p.size * 1.6;
-                            const hubRadius = p.size * 0.6;
+                            ctx.fillStyle = `rgba(180, 215, 255, ${p.opacity})`;
+                            ctx.shadowBlur = p.size * 3; 
+                            ctx.shadowColor = 'rgba(100, 150, 255, 0.8)';
+                            
                             ctx.beginPath();
-                            for (let arm = 0; arm < numArms; arm++) {
-                                // 粒子自身的 jiggling 角度 `p.angle` 用於微調圖案的有機旋轉
-                                const angle = (arm / numArms) * Math.PI * 2 + (p.angle / 15);
-                                
-                                // 從中心樞紐向外繪製臂
-                                const startX = hubRadius * Math.cos(angle);
-                                const startY = hubRadius * Math.sin(angle);
-                                const endX = mainArmLength * Math.cos(angle);
-                                const endY = mainArmLength * Math.sin(angle);
-                                ctx.moveTo(startX, startY);
-                                ctx.lineTo(endX, endY);
-                            }
-                            ctx.stroke(); // 繪製線條
-
-                            // 繪製中心樞紐 (Hub)，增加質量感
-                            ctx.beginPath();
-                            ctx.arc(0, 0, hubRadius, 0, Math.PI * 2);
-                            ctx.fill(); // 填充hub
+                            ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+                            ctx.fill();
                         }
 
                         ctx.restore();
@@ -317,8 +291,7 @@
             // ======== 計算季節與背景邏輯 ========
             const currentMonth = currentTime.getMonth() + 1;
             
-            // 是否為特殊的月份 (保留 4 月測試用)
-            // 🚨 確認沒問題後，請把「currentMonth === 4」刪除，恢復成 `currentMonth === 5` 和 `currentMonth === 12` 喔！
+            // 🚨 保留 currentMonth === 4 方便你測試
             const isSpecialMonth = currentMonth === 5 || currentMonth === 4 || currentMonth === 12;
 
             const isMay = seasonalEnabled && (currentMonth === 5 || currentMonth === 4); 
@@ -340,7 +313,7 @@
 
             if (!data) {
                 return (
-                    <div className={`w-full min-h-screen flex items-start justify-center pt-6 px-4 pb-20 transition-colors duration-700 ${outerBgClass}`}>
+                    <div className={`w-full min-h-screen flex items-start justify-center pt-6 px-4 pb-20 transition-colors duration-300 ${outerBgClass}`}>
                         <div className="w-full max-w-4xl space-y-6 animate-pulse">
                             <div className="h-20 bg-gray-300/60 rounded-2xl w-full"></div>
                             <div className="h-80 bg-gray-300/60 rounded-[2rem] w-full"></div>
@@ -416,17 +389,17 @@
             const textHuge = fontSize === 'large' ? 'text-[28px] md:text-[32px]' : 'text-[24px] md:text-[28px]'; 
 
             return (
-                <div className={`w-full min-h-screen flex justify-center transition-colors duration-700 ${outerBgClass}`}>
+                <div className={`w-full min-h-screen flex justify-center transition-colors duration-300 ${outerBgClass}`}>
                     
                     <SeasonalEffects isMay={isMay} isDec={isDec} />
 
-                    <div className={`w-full max-w-4xl min-h-screen relative z-30 shadow-2xl hide-scrollbar pb-36 md:pb-10 transition-colors duration-700 ${mainContentBgClass}`}>
+                    <div className={`w-full max-w-4xl min-h-screen relative z-30 shadow-2xl hide-scrollbar pb-36 md:pb-10 transition-colors duration-300 ${mainContentBgClass}`}>
 
                         <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 px-5 py-3 md:px-6 md:py-4">
                             <div className="flex flex-nowrap justify-between items-center mb-1.5 gap-2">
                                 <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-1 md:mt-0">
                                     <h1 className={`${textH1} font-black tracking-tight text-[#1C1C1E] whitespace-nowrap transition-all duration-300`}>風一族職場教會</h1>
-                                    <span className={`${textMicro} font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap transition-all duration-500 ${themeColorClass} ${themeLightBgClass}`}>
+                                    <span className={`${textMicro} font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap transition-all duration-300 ${themeColorClass} ${themeLightBgClass}`}>
                                         {data.bulletinDate.slice(5)} {data.weekNumber}
                                     </span>
                                 </div>
@@ -456,7 +429,7 @@
                             
                             <div className="flex justify-start items-center">
                                 <p className={`${textXs} text-[#6C6C70] font-medium flex items-center gap-2 transition-all duration-300`}>
-                                    <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-colors duration-500 ${themeBgClass}`}></span>
+                                    <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-colors duration-300 ${themeBgClass}`}></span>
                                     2026年度異象：{data.vision}
                                 </p>
                             </div>
@@ -487,7 +460,7 @@
                             <section>
                                 <div className={`${cardStyle} p-7 md:p-10 border-none bg-gradient-to-br from-white to-[#F9F9F9] relative overflow-hidden`}>
                                     <div className="relative z-10">
-                                        <div className={`flex items-center gap-2 mb-3 transition-colors duration-500 ${themeColorClass}`}>
+                                        <div className={`flex items-center gap-2 mb-3 transition-colors duration-300 ${themeColorClass}`}>
                                             <Icon name="book" size={22} />
                                             <span className={`${textXs} font-black tracking-widest uppercase transition-all duration-300`}>信息主題</span>
                                         </div>
@@ -511,7 +484,7 @@
                                         }
                                     </div>
                                     <div 
-                                        className="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 -mr-24 -mt-24 pointer-events-none transition-colors duration-700"
+                                        className="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 -mr-24 -mt-24 pointer-events-none transition-all duration-300"
                                         style={{ background: themeGradient }}
                                     ></div>
                                 </div>
@@ -724,7 +697,7 @@
                                         <div className="space-y-4">
                                             <button type="button" onClick={() => copyToClipboard(data.offering.account)} className={`w-full flex items-start justify-between gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/80 transition-colors text-left group ${themeGroupHoverBgClass}`}>
                                                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                                                    <Icon name="card" size={22} className={`mt-1 shrink-0 transition-colors duration-500 ${themeColorClass}`} />
+                                                    <Icon name="card" size={22} className={`mt-1 shrink-0 transition-colors duration-300 ${themeColorClass}`} />
                                                     <div className="space-y-1 w-full">
                                                         <p className={`${textXs} font-bold text-[#8E8E93] uppercase tracking-widest transition-all duration-300`}>{data.offering.bank}</p>
                                                         <p className={`${textHuge} break-words font-black text-[#1C1C1E] tracking-tighter leading-none transition-all duration-300`}>{data.offering.account}</p>
@@ -736,7 +709,7 @@
                                                 </div>
                                             </button>
                                             <div className="flex items-start gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/70">
-                                                <Icon name="users" size={20} className={`mt-0.5 shrink-0 transition-colors duration-500 ${themeColorClass}`} />
+                                                <Icon name="users" size={20} className={`mt-0.5 shrink-0 transition-colors duration-300 ${themeColorClass}`} />
                                                 <div className="space-y-1 flex-1 min-w-0">
                                                     <p className={`${textXs} font-bold text-[#8E8E93] uppercase tracking-widest transition-all duration-300`}>戶名 ACCOUNT NAME</p>
                                                     <p className={`${textSm} break-words font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>{data.offering.name}</p>
@@ -752,7 +725,7 @@
                                         </div>
                                         <div className="space-y-4">
                                             <a href={`tel:${data.office.phone}`} className={`flex items-start gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/80 transition-colors block cursor-pointer group ${themeGroupHoverBgClass}`}>
-                                                <Icon name="phone" size={20} className={`mt-1 shrink-0 transition-colors duration-500 ${themeColorClass}`} />
+                                                <Icon name="phone" size={20} className={`mt-1 shrink-0 transition-colors duration-300 ${themeColorClass}`} />
                                                 <div className="space-y-1 flex-1 min-w-0">
                                                     <p className={`${textXs} font-bold text-[#8E8E93] uppercase tracking-widest transition-all duration-300`}>馬可樓辦公室電話 PHONE</p>
                                                     <p className={`${textHuge} font-black text-[#1C1C1E] tracking-tighter leading-none transition-colors ${themeGroupHoverTextClass}`}>{data.office.phone}</p>
@@ -760,7 +733,7 @@
                                             </a>
                                             <a href={`https://maps.app.goo.gl/UrqVpfa8BrJapqsG7?g_st=ic`} target="_blank" rel="noopener noreferrer" className={`flex items-start justify-between gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/80 transition-colors group ${themeGroupHoverBgClass}`}>
                                                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                                                    <Icon name="pin" size={20} className={`mt-0.5 shrink-0 transition-colors duration-500 ${themeColorClass}`} />
+                                                    <Icon name="pin" size={20} className={`mt-0.5 shrink-0 transition-colors duration-300 ${themeColorClass}`} />
                                                     <div className="space-y-1 pr-2 w-full">
                                                         <p className={`${textXs} font-bold text-[#8E8E93] uppercase tracking-widest transition-all duration-300`}>馬可樓辦公室地址 ADDRESS</p>
                                                         <p className={`${textMd} break-words font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>{data.office.address}</p>
