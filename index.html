@@ -285,7 +285,8 @@
                 setFontSize(current => current === 'normal' ? 'large' : 'normal');
             };
 
-            const cardStyle = "bg-white border border-gray-100/80 rounded-[2rem] shadow-sm overflow-hidden transition-all duration-300";
+            // 調整卡片樣式，讓它更俐落
+            const cardStyle = "bg-white border border-gray-100/80 rounded-[1.5rem] shadow-sm overflow-hidden transition-all duration-300";
 
             const currentMonth = currentTime.getMonth() + 1;
             const isSpecialMonth = currentMonth === 5 || currentMonth === 12;
@@ -439,7 +440,7 @@
                                     if (isDec) activeBg = 'bg-[#0082CC]';
 
                                     return (
-                                        <button key={item.id} type="button" onClick={() => setActiveMainTab(item.id)} className={`flex-1 flex items-center justify-center gap-2 h-10 lg:h-12 rounded-xl lg:rounded-2xl transition-all duration-300 ${
+                                        <button key={item.id} type="button" onClick={() => setActiveMainTab(item.id)} className={`flex-1 flex items-center justify-center gap-2 h-10 lg:h-12 rounded-xl lg:rounded-[1rem] transition-all duration-300 ${
                                             activeMainTab === item.id ? `${activeBg} text-white shadow-md` : 'bg-white text-[#8E8E93] border border-gray-200 hover:bg-gray-50'
                                         }`}>
                                             <Icon name={item.icon} size={18} className="lg:w-5 lg:h-5" />
@@ -452,7 +453,7 @@
 
                         <div className="p-5 lg:p-8 space-y-6 lg:space-y-8">
                             <section>
-                                <div className={`${cardStyle} p-7 md:p-10 lg:p-12 xl:p-14 border-none bg-gradient-to-br from-white to-[#F9F9F9] relative overflow-hidden`}>
+                                <div className={`${cardStyle} p-7 md:p-10 lg:p-12 xl:p-14 border-none bg-gradient-to-br from-white to-[#F9F9F9] relative overflow-hidden rounded-[2rem]`}>
                                     <div className="relative z-10">
                                         <div className={`flex items-center gap-2 mb-3 transition-colors duration-300 ${themeColorClass}`}>
                                             <Icon name="book" size={22} />
@@ -495,7 +496,7 @@
                                                     const isSermonOpen = expandedSermons.includes(idx);
                                                     
                                                     return (
-                                                        <div key={idx} className={`bg-white rounded-2xl overflow-hidden border shadow-sm transition-colors duration-300 ${themeScriptureBorderClass}`}>
+                                                        <div key={idx} className={`bg-white rounded-[1.25rem] overflow-hidden border shadow-sm transition-colors duration-300 ${themeScriptureBorderClass}`}>
                                                             <button 
                                                                 type="button" 
                                                                 onClick={() => {
@@ -579,59 +580,58 @@
                                 )}
 
                                 {activeMainTab === 'news' && (
-                                    <div className="grid grid-cols-1 gap-6 xl:gap-8 items-start">
-                                        <div className={`${cardStyle} p-6 md:p-8 space-y-4 ${themeScriptureBorderClass} col-span-1`}>
-                                            <h3 className={`${textH3} font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-4 transition-all duration-300`}>教會公告 ANNOUNCEMENTS</h3>
-                                            
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 items-start">
-                                                {(data.announcements || []).map((item, idx) => {
-                                                    const isNewsOpen = expandedNewsList.includes(idx);
-                                                    
-                                                    return (
-                                                        <div key={item.id} className={`bg-white rounded-2xl overflow-hidden border shadow-sm transition-colors duration-300 ${themeScriptureBorderClass}`}>
-                                                            <button 
-                                                                type="button" 
-                                                                onClick={() => {
-                                                                    if (isNewsOpen) {
-                                                                        setExpandedNewsList(expandedNewsList.filter(i => i !== idx));
-                                                                    } else {
-                                                                        setExpandedNewsList([...expandedNewsList, idx]);
-                                                                    }
-                                                                }} 
-                                                                className={`w-full flex justify-between items-center px-5 py-4 sm:py-5 text-left transition-colors group gap-4 ${themeGroupHoverBgClass}`}
-                                                            >
-                                                                <div className="flex-1 min-w-0 flex flex-col items-start gap-1.5">
-                                                                    <span className={`shrink-0 ${textMicro} font-bold px-2.5 py-1 rounded-full uppercase transition-all duration-300 tracking-wider ${isMay || isDec ? themeColorClass + ' ' + themeLightBgClass : 'text-[#FF9500] bg-[#FF9500]/10'}`}>
-                                                                        {item.date}
-                                                                    </span>
-                                                                    <span className={`w-full whitespace-normal break-words pr-2 ${textLg} font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>
-                                                                        {item.title}
-                                                                    </span>
+                                    <div className="space-y-5 px-1 lg:px-2">
+                                        <h3 className={`${textH3} font-black text-[#8E8E93] uppercase tracking-[0.2em] mb-2 px-1 transition-all duration-300`}>教會公告 ANNOUNCEMENTS</h3>
+                                        
+                                        {/* 解除大卡片包裝，改為獨立的卡片網格，避免尺寸與視覺擁擠 */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6 items-start">
+                                            {(data.announcements || []).map((item, idx) => {
+                                                const isNewsOpen = expandedNewsList.includes(idx);
+                                                
+                                                return (
+                                                    <div key={item.id} className={`${cardStyle} flex flex-col transition-colors duration-300 ${isMay || isDec ? themeScriptureBorderClass : 'border-gray-200/80'} shadow-[0_2px_10px_rgba(0,0,0,0.02)]`}>
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={() => {
+                                                                if (isNewsOpen) {
+                                                                    setExpandedNewsList(expandedNewsList.filter(i => i !== idx));
+                                                                } else {
+                                                                    setExpandedNewsList([...expandedNewsList, idx]);
+                                                                }
+                                                            }} 
+                                                            className={`w-full flex justify-between items-start px-6 py-6 text-left transition-colors group gap-4 ${themeGroupHoverBgClass}`}
+                                                        >
+                                                            <div className="flex-1 min-w-0 flex flex-col items-start gap-2">
+                                                                <span className={`shrink-0 ${textMicro} font-bold px-3 py-1 rounded-full uppercase transition-all duration-300 tracking-wider ${isMay || isDec ? themeColorClass + ' ' + themeLightBgClass : 'text-[#FF9500] bg-[#FF9500]/10'}`}>
+                                                                    {item.date}
+                                                                </span>
+                                                                <span className={`w-full whitespace-normal break-words pr-2 ${textLg} font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>
+                                                                    {item.title}
+                                                                </span>
+                                                            </div>
+                                                            
+                                                            <div className={`flex items-center gap-1 shrink-0 mt-1 transition-colors ${isNewsOpen ? themeColorClass : 'text-[#8E8E93]'} ${themeGroupHoverTextClass}`}>
+                                                                {!isNewsOpen ? <span className={`${textXs} hidden sm:inline font-normal transition-all duration-300`}>(展開)</span> : null}
+                                                                <Icon name="chevronDown" size={18} className={`transition-transform duration-300 ${isNewsOpen ? 'rotate-180' : ''}`} />
+                                                            </div>
+                                                        </button>
+                                                        {isNewsOpen && (
+                                                            <div className={`px-6 pb-6 pt-2 border-t mt-1 mx-4 ${themeScriptureBorderClass}`}>
+                                                                <div className={`${textMd} font-normal text-[#48484A] leading-relaxed mt-3 transition-all duration-300`}>
+                                                                    <MultilineText text={item.detail} />
                                                                 </div>
-                                                                
-                                                                <div className={`flex items-center gap-1 shrink-0 transition-colors ${isNewsOpen ? themeColorClass : 'text-[#8E8E93]'} ${themeGroupHoverTextClass}`}>
-                                                                    {!isNewsOpen ? <span className={`${textXs} hidden sm:inline font-normal transition-all duration-300`}>(展開)</span> : null}
-                                                                    <Icon name="chevronDown" size={18} className={`transition-transform duration-300 ${isNewsOpen ? 'rotate-180' : ''}`} />
-                                                                </div>
-                                                            </button>
-                                                            {isNewsOpen && (
-                                                                <div className={`px-5 pb-5 pt-1 border-t mt-1 mx-2 ${themeScriptureBorderClass}`}>
-                                                                    <div className={`${textMd} font-normal text-[#48484A] leading-relaxed mt-4 transition-all duration-300`}>
-                                                                        <MultilineText text={item.detail} />
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    )
-                                                })}
-                                            </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 )}
 
                                 {activeMainTab === 'community' && (
                                     <div className="space-y-5 lg:space-y-8">
-                                        <div className="bg-white/70 p-1.5 rounded-2xl lg:rounded-[1.25rem] flex gap-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] border border-gray-200 lg:max-w-xl lg:mx-auto">
+                                        <div className="bg-white/70 p-1.5 rounded-[1.25rem] flex gap-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] border border-gray-200 lg:max-w-xl lg:mx-auto">
                                             {['weekday', 'sunday', 'special'].map(tabId => (
                                                 <button key={tabId} type="button" onClick={() => setActiveGroupTab(tabId)} className={`flex-1 py-3 md:py-4 ${textSm} font-bold rounded-xl lg:rounded-[1rem] transition-all duration-300 ${activeGroupTab === tabId ? `bg-white shadow-sm ${isMay || isDec ? themeColorClass : 'text-[#34C759]'}` : 'text-[#8E8E93] hover:bg-white/50'}`}>
                                                     {tabId === 'weekday' ? '平日小組' : tabId === 'sunday' ? '主日小組' : '特色/其他'}
@@ -642,7 +642,7 @@
                                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-start">
                                             <div className={`${cardStyle} ${isMay || isDec ? themeScriptureBorderClass : 'border-[#34C759]/20'} lg:col-span-8 xl:col-span-8`}>
                                                 {(data.groups[activeGroupTab] || []).map((group, idx) => (
-                                                    <div key={idx} className={`px-6 py-5 flex items-center justify-between border-b last:border-0 hover:bg-gray-50 transition-colors gap-4 ${isMay || isDec ? themeScriptureBorderClass : 'border-[#34C759]/5'}`}>
+                                                    <div key={idx} className={`px-6 py-5 flex items-center justify-between border-b last:border-0 hover:bg-white/50 transition-colors gap-4 ${isMay || isDec ? themeScriptureBorderClass : 'border-[#34C759]/10'}`}>
                                                         <div className="flex-1 min-w-0 pr-2">
                                                             <p className={`whitespace-normal break-words ${textLg} font-bold text-[#1C1C1E] transition-all duration-300`}>{group.name}</p>
                                                             <p className={`${textSm} text-[#6C6C70] font-medium mt-1.5 leading-tight transition-all duration-300`}>{group.time}<br className="sm:hidden" /><span className="hidden sm:inline"> · </span>{group.leader}</p>
@@ -669,7 +669,7 @@
                                                                     <p className={`${textSm} font-bold mt-0.5 transition-all duration-300 ${isMay || isDec ? themeColorClass : 'text-[#34C759]'}`}>牧師：{ov.leader}</p>
                                                                 </div>
                                                             </div>
-                                                            <div className={`${textSm} text-[#6C6C70] font-medium space-y-2 p-4 rounded-xl transition-all duration-300 ${isMay || isDec ? themeScriptureBgClass : 'bg-[#F2F9F5]'}`}>
+                                                            <div className={`${textSm} text-[#6C6C70] font-medium space-y-2 p-4 rounded-[1rem] transition-all duration-300 ${isMay || isDec ? themeScriptureBgClass : 'bg-[#F2F9F5]'}`}>
                                                                 <p className="flex items-center gap-2"><Icon name="clock" size={16} className="text-[#AEAEB2]" /> <span>{ov.time} 聚會</span></p>
                                                                 <p className="flex items-start gap-2"><Icon name="pin" size={16} className="mt-0.5 shrink-0 text-[#AEAEB2]" /> <span className="leading-snug">{ov.loc}</span></p>
                                                             </div>
@@ -682,14 +682,18 @@
                                 )}
                             </main>
 
-                            <footer className="mt-10 md:mt-16 pb-10">
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-8 mb-10">
-                                    <div className={`${cardStyle} p-7 md:p-8 text-left border-gray-200/40 bg-white`}>
+                            {/* 調整 Footer 設計：去卡片化，增加微透明浮起效果 */}
+                            <footer className="mt-12 md:mt-20 pb-10 px-2 lg:px-4">
+                                {/* 分隔線，用來切分主內容與 Footer */}
+                                <div className="w-full h-px bg-gray-200/70 mb-10"></div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-10">
+                                    <div className="text-left">
                                         <div className="flex items-center gap-3 mb-5 text-[#8E8E93]">
-                                            <h4 className={`${textH3} font-black uppercase tracking-[0.2em] transition-all duration-300`}>奉獻帳戶資訊</h4>
+                                            <h4 className={`${textH3} font-black uppercase tracking-[0.2em] px-1 transition-all duration-300`}>奉獻帳戶資訊</h4>
                                         </div>
                                         <div className="space-y-4">
-                                            <button type="button" onClick={() => copyToClipboard(data.offering.account)} className={`w-full flex items-start justify-between gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/80 transition-colors text-left group ${themeGroupHoverBgClass}`}>
+                                            <button type="button" onClick={() => copyToClipboard(data.offering.account)} className={`w-full flex items-start justify-between gap-3 p-5 bg-white/60 hover:bg-white rounded-[1.5rem] border border-gray-200/50 shadow-sm transition-all text-left group ${themeGroupHoverBgClass}`}>
                                                 <div className="flex items-start gap-3 flex-1 min-w-0">
                                                     <Icon name="card" size={22} className={`mt-1 shrink-0 transition-colors duration-300 ${themeColorClass}`} />
                                                     <div className="space-y-1 w-full">
@@ -702,30 +706,30 @@
                                                     <span className={`${textXs} font-bold text-[#AEAEB2] transition-colors ${themeGroupHoverTextClass}`}>複製</span>
                                                 </div>
                                             </button>
-                                            <div className="flex items-start gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/70">
+                                            <div className="flex items-start gap-3 p-5 bg-white/60 rounded-[1.5rem] border border-gray-200/50 shadow-sm">
                                                 <Icon name="users" size={20} className={`mt-0.5 shrink-0 transition-colors duration-300 ${themeColorClass}`} />
                                                 <div className="space-y-1 flex-1 min-w-0">
                                                     <p className={`${textXs} font-bold text-[#8E8E93] uppercase tracking-widest transition-all duration-300`}>戶名 ACCOUNT NAME</p>
                                                     <p className={`${textSm} break-words font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>{data.offering.name}</p>
                                                 </div>
                                             </div>
-                                            <p className={`${textXs} text-[#8E8E93] font-medium text-center leading-relaxed mt-2 bg-gray-50 py-2.5 rounded-lg transition-all duration-300`}>＊透過銀行轉帳奉獻後，請通知辦公室同工＊</p>
+                                            <p className={`${textXs} text-[#8E8E93] font-medium text-center leading-relaxed mt-2 py-2.5 rounded-lg transition-all duration-300`}>＊透過銀行轉帳奉獻後，請通知辦公室同工＊</p>
                                         </div>
                                     </div>
 
-                                    <div className={`${cardStyle} p-7 md:p-8 text-left border-gray-200/40 bg-white`}>
+                                    <div className="text-left">
                                         <div className="flex items-center gap-3 mb-5 text-[#8E8E93]">
-                                            <h4 className={`${textH3} font-black uppercase tracking-[0.2em] transition-all duration-300`}>聯絡我們 CONTACT</h4>
+                                            <h4 className={`${textH3} font-black uppercase tracking-[0.2em] px-1 transition-all duration-300`}>聯絡我們 CONTACT</h4>
                                         </div>
                                         <div className="space-y-4">
-                                            <a href={`tel:${data.office.phone}`} className={`flex items-start gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/80 transition-colors block cursor-pointer group ${themeGroupHoverBgClass}`}>
+                                            <a href={`tel:${data.office.phone}`} className={`flex items-start gap-3 p-5 bg-white/60 hover:bg-white rounded-[1.5rem] border border-gray-200/50 shadow-sm transition-all block cursor-pointer group ${themeGroupHoverBgClass}`}>
                                                 <Icon name="phone" size={20} className={`mt-1 shrink-0 transition-colors duration-300 ${themeColorClass}`} />
                                                 <div className="space-y-1 flex-1 min-w-0">
                                                     <p className={`${textXs} font-bold text-[#8E8E93] uppercase tracking-widest transition-all duration-300`}>馬可樓辦公室電話 PHONE</p>
                                                     <p className={`${textHuge} font-black text-[#1C1C1E] tracking-tighter leading-none transition-colors ${themeGroupHoverTextClass}`}>{data.office.phone}</p>
                                                 </div>
                                             </a>
-                                            <a href={`https://maps.app.goo.gl/UrqVpfa8BrJapqsG7?g_st=ic`} target="_blank" rel="noopener noreferrer" className={`flex items-start justify-between gap-3 p-5 bg-transparent rounded-2xl border border-gray-200/80 transition-colors group ${themeGroupHoverBgClass}`}>
+                                            <a href={`https://maps.app.goo.gl/UrqVpfa8BrJapqsG7?g_st=ic`} target="_blank" rel="noopener noreferrer" className={`flex items-start justify-between gap-3 p-5 bg-white/60 hover:bg-white rounded-[1.5rem] border border-gray-200/50 shadow-sm transition-all group ${themeGroupHoverBgClass}`}>
                                                 <div className="flex items-start gap-3 flex-1 min-w-0">
                                                     <Icon name="pin" size={20} className={`mt-0.5 shrink-0 transition-colors duration-300 ${themeColorClass}`} />
                                                     <div className="space-y-1 pr-2 w-full">
@@ -761,8 +765,8 @@
                                             onClick={() => setSeasonalEnabled(!seasonalEnabled)}
                                             className={`flex items-center gap-2.5 ${textSm} font-bold px-6 py-3 rounded-full border transition-all duration-300 ${
                                                 seasonalEnabled 
-                                                    ? `bg-white border-gray-200 text-[#48484A] shadow-md hover:bg-gray-50` 
-                                                    : 'bg-gray-100/80 border-gray-200 text-[#8E8E93] hover:bg-gray-200 shadow-sm'
+                                                    ? `bg-white/80 border-gray-200 text-[#48484A] shadow-sm hover:bg-white` 
+                                                    : 'bg-transparent border-gray-300 text-[#8E8E93] hover:bg-white/50'
                                             }`}
                                         >
                                             <span className="text-[18px] leading-none">{currentMonth === 12 ? '❄️' : '🌸'}</span>
