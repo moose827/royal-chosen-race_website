@@ -407,17 +407,15 @@
                                         <Icon name="share" size={14} /> <span className="hidden sm:inline">分享此週報</span>
                                     </button>
                                     
-                                    {data?.pdfDownloadUrl && (
-                                        <a 
-                                            href={data.pdfDownloadUrl} 
-                                            download="風一族職場教會週報.pdf"
-                                            rel="noopener noreferrer"
-                                            className={`hidden md:flex items-center justify-center w-9 h-9 rounded-full text-white transition-all duration-300 hover:scale-110 ${themeBgClass} shadow-md`}
-                                            title="下載週報 PDF"
-                                        >
-                                            <Icon name="download" size={16} />
-                                        </a>
-                                    )}
+                                    <a 
+                                        href="https://drive.google.com/drive/u/4/folders/0B2mWI5ZaFxypenUyUG1hbTgxQ2s?resourcekey=0-Mi5SQ1jyzefSJf9sBzOcvw" 
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`hidden md:flex items-center justify-center w-9 h-9 rounded-full text-white transition-all duration-300 hover:scale-110 ${themeBgClass} shadow-md`}
+                                        title="開啟週報資料夾"
+                                    >
+                                        <Icon name="download" size={16} />
+                                    </a>
                                 </div>
                             </div>
                             
@@ -497,7 +495,6 @@
                                                     const isSermonOpen = expandedSermons.includes(idx);
                                                     
                                                     return (
-                                                        /* [重點修改] 讓邊框顏色全自動化 */
                                                         <div key={idx} className={`bg-white rounded-2xl overflow-hidden border shadow-sm transition-colors duration-300 ${themeScriptureBorderClass}`}>
                                                             <button 
                                                                 type="button" 
@@ -508,7 +505,6 @@
                                                                         setExpandedSermons([...expandedSermons, idx]);
                                                                     }
                                                                 }} 
-                                                                /* [重點修改] 讓 hover 背景顏色全自動化，套用 themeGroupHoverBgClass */
                                                                 className={`w-full flex justify-between items-center px-5 py-4 text-left transition-colors group gap-4 ${themeGroupHoverBgClass}`}
                                                             >
                                                                 <span className={`flex-1 min-w-0 pr-2 break-words whitespace-normal ${textLg} font-bold text-[#1C1C1E] leading-snug transition-all duration-300`}>{item.title}</span>
@@ -592,7 +588,6 @@
                                                     const isNewsOpen = expandedNewsList.includes(idx);
                                                     
                                                     return (
-                                                        /* [重點修改] 讓邊框顏色全自動化 */
                                                         <div key={item.id} className={`bg-white rounded-2xl overflow-hidden border shadow-sm transition-colors duration-300 ${themeScriptureBorderClass}`}>
                                                             <button 
                                                                 type="button" 
@@ -603,7 +598,6 @@
                                                                         setExpandedNewsList([...expandedNewsList, idx]);
                                                                     }
                                                                 }} 
-                                                                /* [重點修改] 讓 hover 背景顏色全自動化，套用 themeGroupHoverBgClass */
                                                                 className={`w-full flex justify-between items-center px-5 py-4 sm:py-5 text-left transition-colors group gap-4 ${themeGroupHoverBgClass}`}
                                                             >
                                                                 <div className="flex-1 min-w-0 flex flex-col items-start gap-1.5">
@@ -806,22 +800,20 @@
                                 })}
                             </div>
                             
-                            {data?.pdfDownloadUrl && (
-                                <a 
-                                    href={data.pdfDownloadUrl} 
-                                    download="風一族職場教會週報.pdf" 
-                                    rel="noopener noreferrer"
-                                    className={`shrink-0 w-[4.25rem] h-[4.25rem] rounded-full flex items-center justify-center transition-all duration-300 text-white active:scale-95 hover:scale-105 shadow-lg ${
-                                        isMay ? 'bg-[#FF4D85] shadow-[#FF4D85]/40' :
-                                        isDec ? 'bg-[#0082CC] shadow-[#0082CC]/40' :
-                                        activeMainTab === 'worship' ? 'bg-[#007AFF] shadow-[#007AFF]/40' :
-                                        activeMainTab === 'news' ? 'bg-[#FF9500] shadow-[#FF9500]/40' :
-                                        'bg-[#34C759] shadow-[#34C759]/40'
-                                    }`}
-                                >
-                                    <Icon name="download" size={24} />
-                                </a>
-                            )}
+                            <a 
+                                href="https://drive.google.com/drive/u/4/folders/0B2mWI5ZaFxypenUyUG1hbTgxQ2s?resourcekey=0-Mi5SQ1jyzefSJf9sBzOcvw" 
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`shrink-0 w-[4.25rem] h-[4.25rem] rounded-full flex items-center justify-center transition-all duration-300 text-white active:scale-95 hover:scale-105 shadow-lg ${
+                                    isMay ? 'bg-[#FF4D85] shadow-[#FF4D85]/40' :
+                                    isDec ? 'bg-[#0082CC] shadow-[#0082CC]/40' :
+                                    activeMainTab === 'worship' ? 'bg-[#007AFF] shadow-[#007AFF]/40' :
+                                    activeMainTab === 'news' ? 'bg-[#FF9500] shadow-[#FF9500]/40' :
+                                    'bg-[#34C759] shadow-[#34C759]/40'
+                                }`}
+                            >
+                                <Icon name="download" size={24} />
+                            </a>
                         </div>
 
                         {toast && (
