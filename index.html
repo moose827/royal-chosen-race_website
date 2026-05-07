@@ -753,17 +753,17 @@
                                     </div>
                                 </div>
                                 
-                                <div className="relative z-20 flex flex-wrap justify-center items-center gap-x-6 gap-y-4 mb-10">
-                                    <a href="https://royal-chosen-race.com/" target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1.5 ${textSm} font-bold text-[#007AFF] hover:bg-blue-50 transition-all duration-300 px-3 py-2 rounded-lg`}>
-                                        <Icon name="globe" size={18} /> 官方網站
-                                    </a>
-                                    <a href="https://reurl.cc/epkgeW" target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1.5 ${textSm} font-bold text-[#AF52DE] hover:bg-purple-50 transition-all duration-300 px-3 py-2 rounded-lg`}>
-                                        <Icon name="plus" size={18} /> 新人名單
-                                    </a>
-                                    <a href="https://reurl.cc/0mWG5A" target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1.5 ${textSm} font-bold text-[#FF2D55] hover:bg-pink-50 transition-all duration-300 px-3 py-2 rounded-lg`}>
-                                        <Icon name="message" size={18} /> 聚會回饋
-                                    </a>
-                                </div>
+                                <div className="relative z-20 flex justify-between items-center gap-2 md:gap-4 mb-10 w-full max-w-lg mx-auto px-1">
+    <a href="https://royal-chosen-race.com/" target="_blank" rel="noopener noreferrer" className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1.5 ${textSm} font-bold text-[#007AFF] bg-white/70 hover:bg-white border border-gray-200/50 shadow-sm transition-all duration-300 py-3 rounded-2xl active:scale-95`}>
+        <Icon name="globe" size={20} /> <span className="whitespace-nowrap">官方網站</span>
+    </a>
+    <a href="https://reurl.cc/epkgeW" target="_blank" rel="noopener noreferrer" className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1.5 ${textSm} font-bold text-[#AF52DE] bg-white/70 hover:bg-white border border-gray-200/50 shadow-sm transition-all duration-300 py-3 rounded-2xl active:scale-95`}>
+        <Icon name="plus" size={20} /> <span className="whitespace-nowrap">新人名單</span>
+    </a>
+    <a href="https://reurl.cc/0mWG5A" target="_blank" rel="noopener noreferrer" className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1.5 ${textSm} font-bold text-[#FF2D55] bg-white/70 hover:bg-white border border-gray-200/50 shadow-sm transition-all duration-300 py-3 rounded-2xl active:scale-95`}>
+        <Icon name="message" size={20} /> <span className="whitespace-nowrap">聚會回饋</span>
+    </a>
+</div>
 
                                 {isSpecialMonth && (
                                     <div className="relative z-30 flex justify-center mt-6 mb-8">
